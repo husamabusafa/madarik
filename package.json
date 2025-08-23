@@ -1,0 +1,34 @@
+{
+  "name": "madarik",
+  "version": "1.0.0",
+  "description": "Madarik Real Estate Platform - Bilingual real estate listings with company-centric selling",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently \"pnpm run dev:server\" \"pnpm run dev:client\"",
+    "dev:client": "cd client && pnpm run dev",
+    "dev:server": "cd server && pnpm run start:dev",
+    "build": "pnpm run build:server && pnpm run build:client",
+    "build:client": "cd client && pnpm run build",
+    "build:server": "cd server && pnpm run build",
+    "install:all": "pnpm install && cd client && pnpm install && cd ../server && pnpm install",
+    "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist",
+    "prisma:generate": "cd server && pnpm run prisma:generate",
+    "prisma:migrate": "cd server && pnpm run prisma:migrate",
+    "prisma:studio": "cd server && pnpm run prisma:studio",
+    "prisma:seed": "cd server && pnpm run prisma:seed",
+    "db:reset": "cd server && pnpm run db:reset"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}
+
