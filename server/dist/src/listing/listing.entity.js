@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a, _b, _c, _d;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Listing = void 0;
 const graphql_1 = require("@nestjs/graphql");
@@ -65,15 +66,15 @@ __decorate([
 ], Listing.prototype, "companyId", void 0);
 __decorate([
     (0, graphql_1.Field)(() => client_1.ListingStatus),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_a = typeof client_1.ListingStatus !== "undefined" && client_1.ListingStatus) === "function" ? _a : Object)
 ], Listing.prototype, "status", void 0);
 __decorate([
     (0, graphql_1.Field)(() => client_1.PropertyType),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_b = typeof client_1.PropertyType !== "undefined" && client_1.PropertyType) === "function" ? _b : Object)
 ], Listing.prototype, "propertyType", void 0);
 __decorate([
     (0, graphql_1.Field)(() => client_1.ListingType),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_c = typeof client_1.ListingType !== "undefined" && client_1.ListingType) === "function" ? _c : Object)
 ], Listing.prototype, "listingType", void 0);
 __decorate([
     (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
@@ -89,7 +90,7 @@ __decorate([
 ], Listing.prototype, "areaValue", void 0);
 __decorate([
     (0, graphql_1.Field)(() => client_1.AreaUnit, { nullable: true }),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_d = typeof client_1.AreaUnit !== "undefined" && client_1.AreaUnit) === "function" ? _d : Object)
 ], Listing.prototype, "areaUnit", void 0);
 __decorate([
     (0, graphql_1.Field)(() => graphql_1.Int, { nullable: true }),
