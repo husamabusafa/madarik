@@ -41,11 +41,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
-      // TODO: Validate token and fetch user data
-      // For now, we'll just set loading to false
+      // Validate token and fetch user data
+      validateTokenAndFetchUser(storedToken);
+    } else {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
+
+  const validateTokenAndFetchUser = async (token: string) => {
+    try {
+      const response = await fetch('http://localhost:3100/api/v1/auth/me', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        // Token is invalid, remove it
+        localStorage.removeItem('token');
+        setToken(null);
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
+      const json = await response.json();
+      const userData = json.data;
+      setUser(userData);
+    } catch (error) {
+      console.error('Token validation error:', error);
+      // Token validation failed, remove it
+      localStorage.removeItem('token');
+      setToken(null);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);

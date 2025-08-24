@@ -17,19 +17,35 @@ import {
   Edit,
   Send,
   UserCheck,
-  UserX
+  UserX,
+  Upload,
+  Download,
+  Copy,
+  AlertCircle,
+  Key,
+  Ban,
+  RotateCcw
 } from 'lucide-react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Table from '../components/common/Table';
 import StatCard from '../components/common/StatCard';
+import InviteUserModal from '../components/users/InviteUserModal';
+import BulkInviteModal from '../components/users/BulkInviteModal';
+import { ToastContainer } from '../components/common/Toast';
+import { useToast } from '../hooks/useToast';
+import { apiService, type UserInvite } from '../lib/api';
 
 const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showBulkInviteModal, setShowBulkInviteModal] = useState(false);
+  const [isInviting, setIsInviting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toasts, showToast, hideToast } = useToast();
 
   // Mock data
   const users = [
@@ -83,32 +99,71 @@ const Users: React.FC = () => {
     }
   ];
 
-  const invites = [
-    {
-      id: 1,
-      email: 'newuser@example.com',
-      invitedRole: 'MANAGER',
-      status: 'PENDING',
-      inviterEmail: 'admin@madarik.com',
-      createdAt: '2024-01-22T10:00:00Z',
-      expiresAt: '2024-01-29T10:00:00Z'
-    },
-    {
-      id: 2,
-      email: 'manager2@example.com',
-      invitedRole: 'MANAGER',
-      status: 'EXPIRED',
-      inviterEmail: 'admin@madarik.com',
-      createdAt: '2024-01-15T14:30:00Z',
-      expiresAt: '2024-01-22T14:30:00Z'
+  const [invites, setInvites] = useState<UserInvite[]>([]);
+
+  // Fetch data on component mount
+  React.useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [usersData, invitesData] = await Promise.all([
+        apiService.getUsers(),
+        apiService.getInvites(),
+      ]);
+      
+      // Update state with real data
+      // setUsers(usersData); // Uncomment when you have real users data
+      setInvites(invitesData);
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+      showToast({
+        type: 'error',
+        title: 'Data Fetch Failed',
+        message: 'Failed to load users and invitations data.',
+      });
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
+
+  // Calculate dynamic stats
+  const totalUsers = users.length;
+  const activeUsers = users.filter(user => user.isActive && user.emailVerifiedAt).length;
+  const pendingInvites = invites.filter(invite => invite.status === 'PENDING').length;
+  const adminUsers = users.filter(user => user.role === 'ADMIN').length;
 
   const stats = [
-    { title: 'Total Users', value: '12', icon: User, change: { value: 2, type: 'increase' as const }, color: 'blue' as const },
-    { title: 'Active Users', value: '10', icon: UserCheck, change: { value: 1, type: 'increase' as const }, color: 'green' as const },
-    { title: 'Pending Invites', value: '3', icon: Clock, change: { value: 0, type: 'increase' as const }, color: 'orange' as const },
-    { title: 'Admins', value: '2', icon: Shield, change: { value: 0, type: 'increase' as const }, color: 'purple' as const },
+    { 
+      title: 'Total Users', 
+      value: totalUsers.toString(), 
+      icon: User, 
+      change: { value: 2, type: 'increase' as const }, 
+      color: 'blue' as const 
+    },
+    { 
+      title: 'Active Users', 
+      value: activeUsers.toString(), 
+      icon: UserCheck, 
+      change: { value: 1, type: 'increase' as const }, 
+      color: 'green' as const 
+    },
+    { 
+      title: 'Pending Invites', 
+      value: pendingInvites.toString(), 
+      icon: Clock, 
+      change: { value: 0, type: 'increase' as const }, 
+      color: 'orange' as const 
+    },
+    { 
+      title: 'Admins', 
+      value: adminUsers.toString(), 
+      icon: Shield, 
+      change: { value: 0, type: 'increase' as const }, 
+      color: 'purple' as const 
+    },
   ];
 
   const getRoleColor = (role: string) => {
@@ -222,13 +277,22 @@ const Users: React.FC = () => {
       key: 'actions',
       label: 'Actions',
       render: (value: any, row: any) => (
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1">
           <Button variant="ghost" size="sm" title="Edit User">
             <Edit className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="sm" title="Settings">
-            <Settings className="h-4 w-4" />
+          <Button variant="ghost" size="sm" title="Reset Password">
+            <Key className="h-4 w-4" />
           </Button>
+          {row.isActive ? (
+            <Button variant="ghost" size="sm" title="Deactivate" className="text-red-600">
+              <Ban className="h-4 w-4" />
+            </Button>
+          ) : (
+            <Button variant="ghost" size="sm" title="Reactivate" className="text-green-600">
+              <RotateCcw className="h-4 w-4" />
+            </Button>
+          )}
           <Button variant="ghost" size="sm" title="More Actions">
             <MoreVertical className="h-4 w-4" />
           </Button>
@@ -266,10 +330,10 @@ const Users: React.FC = () => {
     {
       key: 'createdAt',
       label: 'Invited',
-      render: (value: string, row: any) => (
+      render: (value: string, row: UserInvite) => (
         <div className="text-sm">
           <div className="text-gray-900">{formatDate(value)}</div>
-          <div className="text-gray-500">by {row.inviterEmail}</div>
+          <div className="text-gray-500">by Admin</div>
         </div>
       )
     },
@@ -283,14 +347,24 @@ const Users: React.FC = () => {
     {
       key: 'actions',
       label: 'Actions',
-      render: (value: any, row: any) => (
+      render: (value: any, row: UserInvite) => (
         <div className="flex items-center space-x-2">
           {row.status === 'PENDING' && (
             <>
-              <Button variant="ghost" size="sm" title="Resend Invite">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                title="Resend Invite"
+                onClick={() => handleResendInvite(row.id)}
+              >
                 <Send className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" title="Revoke Invite">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                title="Revoke Invite"
+                onClick={() => handleRevokeInvite(row.id)}
+              >
                 <XCircle className="h-4 w-4" />
               </Button>
             </>
@@ -303,8 +377,143 @@ const Users: React.FC = () => {
     }
   ];
 
+  const handleSendInvite = async (inviteData: { email: string; role: 'ADMIN' | 'MANAGER'; message: string }) => {
+    setIsInviting(true);
+    try {
+      const response = await apiService.inviteUser({
+        email: inviteData.email,
+        role: inviteData.role,
+      });
+      
+      showToast({
+        type: 'success',
+        title: 'Invitation Sent',
+        message: `Invitation sent successfully to ${inviteData.email}!`,
+      });
+      
+      // Refresh the invites list
+      await fetchData();
+      
+    } catch (error) {
+      console.error('Failed to send invite:', error);
+      showToast({
+        type: 'error',
+        title: 'Invitation Failed',
+        message: error instanceof Error ? error.message : 'Failed to send invitation. Please try again.',
+      });
+      throw error; // Re-throw to prevent modal from closing
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  const handleBulkInvite = async (emails: string[]) => {
+    setIsInviting(true);
+    try {
+      // Send invitations one by one
+      const results = await Promise.allSettled(
+        emails.map(email => 
+          apiService.inviteUser({
+            email,
+            role: 'MANAGER', // Bulk invites are always managers
+          })
+        )
+      );
+      
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
+      
+      if (successful > 0) {
+        showToast({
+          type: 'success',
+          title: 'Bulk Invitations Sent',
+          message: `${successful} invitation${successful !== 1 ? 's' : ''} sent successfully!`,
+        });
+      }
+      
+      if (failed > 0) {
+        showToast({
+          type: 'warning',
+          title: 'Some Invitations Failed',
+          message: `${failed} invitation${failed !== 1 ? 's' : ''} failed to send.`,
+        });
+      }
+      
+      // Refresh the invites list
+      await fetchData();
+      
+    } catch (error) {
+      console.error('Failed to send bulk invites:', error);
+      showToast({
+        type: 'error',
+        title: 'Bulk Invitation Failed',
+        message: error instanceof Error ? error.message : 'Failed to send invitations. Please try again.',
+      });
+      throw error; // Re-throw to prevent modal from closing
+    } finally {
+      setIsInviting(false);
+    }
+  };
+
+  const handleResendInvite = async (inviteId: string) => {
+    try {
+      await apiService.resendInvite(inviteId);
+      showToast({
+        type: 'success',
+        title: 'Invitation Resent',
+        message: 'Invitation resent successfully!',
+      });
+      // Refresh the invites list
+      await fetchData();
+    } catch (error) {
+      console.error('Failed to resend invite:', error);
+      showToast({
+        type: 'error',
+        title: 'Resend Failed',
+        message: error instanceof Error ? error.message : 'Failed to resend invitation.',
+      });
+    }
+  };
+
+  const handleRevokeInvite = async (inviteId: string) => {
+    if (!confirm('Are you sure you want to revoke this invitation?')) return;
+    
+    try {
+      await apiService.revokeInvite(inviteId);
+      showToast({
+        type: 'success',
+        title: 'Invitation Revoked',
+        message: 'Invitation revoked successfully!',
+      });
+      // Refresh the invites list
+      await fetchData();
+    } catch (error) {
+      console.error('Failed to revoke invite:', error);
+      showToast({
+        type: 'error',
+        title: 'Revoke Failed',
+        message: error instanceof Error ? error.message : 'Failed to revoke invitation.',
+      });
+    }
+  };
+
+  // Filter users based on search and filters
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesRole = roleFilter === 'all' || user.role.toLowerCase() === roleFilter;
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && user.isActive && user.emailVerifiedAt) ||
+      (statusFilter === 'inactive' && !user.isActive) ||
+      (statusFilter === 'pending' && user.isActive && !user.emailVerifiedAt);
+    
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
   return (
     <div className="space-y-8">
+      {/* Toast Notifications */}
+      <ToastContainer toasts={toasts} onClose={hideToast} />
+
       {/* Header */}
       <motion.div
         className="flex items-center justify-between"
@@ -318,10 +527,20 @@ const Users: React.FC = () => {
             Manage team members, roles, and permissions for your real estate platform.
           </p>
         </div>
-        <Button onClick={() => setShowInviteModal(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Invite User
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="outline">
+            <Download className="h-4 w-4 mr-2" />
+            Export Users
+          </Button>
+          <Button variant="outline" onClick={() => setShowBulkInviteModal(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Bulk Invite
+          </Button>
+          <Button onClick={() => setShowInviteModal(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite User
+          </Button>
+        </div>
       </motion.div>
 
       {/* Stats */}
@@ -353,6 +572,15 @@ const Users: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Team Members</h2>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={fetchData}
+              disabled={isLoading}
+            >
+              <RotateCcw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           </div>
           
           {/* Filters */}
@@ -392,8 +620,9 @@ const Users: React.FC = () => {
           </div>
 
           <Table
-            data={users}
+            data={filteredUsers}
             columns={userColumns}
+            emptyMessage="No users found matching your filters"
           />
         </Card>
       </motion.div>
@@ -408,16 +637,28 @@ const Users: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-semibold text-gray-900">Pending Invitations</h2>
-            <Button variant="outline" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={fetchData}
+                disabled={isLoading}
+              >
+                <RotateCcw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </div>
           </div>
 
           <Table
             data={invites}
             columns={inviteColumns}
-            emptyMessage="No pending invitations"
+            emptyMessage={isLoading ? "Loading invitations..." : "No pending invitations"}
+            loading={isLoading}
           />
         </Card>
       </motion.div>
@@ -469,43 +710,20 @@ const Users: React.FC = () => {
         </Card>
       </motion.div>
 
-      {/* Invite Modal Placeholder */}
-      {showInviteModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <motion.div
-            className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Invite New User</h3>
-            <div className="space-y-4">
-              <Input
-                label="Email Address"
-                type="email"
-                placeholder="user@example.com"
-              />
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Role
-                </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option value="MANAGER">Manager</option>
-                  <option value="ADMIN">Admin</option>
-                </select>
-              </div>
-            </div>
-            <div className="flex justify-end space-x-3 mt-6">
-              <Button variant="outline" onClick={() => setShowInviteModal(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setShowInviteModal(false)}>
-                Send Invitation
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      {/* Modals */}
+      <InviteUserModal
+        isOpen={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        onSubmit={handleSendInvite}
+        isLoading={isInviting}
+      />
+
+      <BulkInviteModal
+        isOpen={showBulkInviteModal}
+        onClose={() => setShowBulkInviteModal(false)}
+        onSubmit={handleBulkInvite}
+        isLoading={isInviting}
+      />
     </div>
   );
 };

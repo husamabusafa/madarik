@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { AuthResolver } from './auth.resolver';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -37,6 +38,7 @@ import { EmailModule } from '../email/email.module';
   controllers: [AuthController],
   providers: [
     AuthService,
+    AuthResolver,
     LocalStrategy,
     JwtStrategy,
     JwtAuthGuard,

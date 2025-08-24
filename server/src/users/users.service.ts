@@ -220,4 +220,66 @@ export class UsersService {
 
     return users;
   }
+
+  // GraphQL helper methods
+  async findAll() {
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        createdAt: true,
+
+        preferredLocale: true,
+
+        // Exclude password
+      },
+    });
+  }
+
+  async findById(id: string) {
+    return this.prisma.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        createdAt: true,
+
+        preferredLocale: true,
+
+        // Exclude password
+      },
+    });
+  }
+
+  async findActiveUsers() {
+    return this.prisma.user.findMany({
+      where: {
+        isActive: true,
+        emailVerifiedAt: { not: null },
+      },
+      orderBy: { email: 'asc' },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        isActive: true,
+        emailVerifiedAt: true,
+        lastLoginAt: true,
+        createdAt: true,
+
+        preferredLocale: true,
+
+        // Exclude password
+      },
+    });
+  }
 }

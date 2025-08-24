@@ -1,0 +1,42 @@
+import { Resolver, Query, Args, ID } from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { CurrentUser as CurrentUserDecorator } from '../common/decorators/current-user.decorator';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
+import { CurrentUser } from '../common/interfaces/user.interface';
+
+@Resolver(() => User)
+@UseGuards(JwtAuthGuard)
+export class UsersResolver {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Query(() => [User])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async users(): Promise<User[]> {
+    return this.usersService.findAll();
+  }
+
+  @Query(() => User, { nullable: true })
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async user(@Args('id', { type: () => ID }) id: string): Promise<User | null> {
+    return this.usersService.findById(id);
+  }
+
+  @Query(() => User)
+  async me(@CurrentUserDecorator() user: CurrentUser): Promise<User> {
+    return this.usersService.findById(user.id);
+  }
+
+  @Query(() => [User])
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MANAGER)
+  async usersForAssignment(): Promise<User[]> {
+    return this.usersService.findActiveUsers();
+  }
+}

@@ -466,4 +466,28 @@ export class AuthService {
 
     return { message: 'Invitation resent successfully' };
   }
+
+  async getInvitations() {
+    return this.prisma.userInvite.findMany({
+      include: {
+        inviter: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+          },
+        },
+        acceptedUser: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
 }

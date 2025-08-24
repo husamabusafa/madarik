@@ -1,0 +1,77 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AcceptInvitationInput {
+  password: String!
+  preferredLocale: String
+  token: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Invitation {
+  acceptedAt: DateTime
+  acceptedUser: User
+  acceptedUserId: String
+  createdAt: DateTime!
+  email: String!
+  expiresAt: DateTime!
+  id: ID!
+  invitedRole: UserRole!
+  inviter: User!
+  inviterUserId: String!
+  status: InviteStatus!
+}
+
+enum InviteStatus {
+  ACCEPTED
+  EXPIRED
+  PENDING
+  REVOKED
+}
+
+input InviteUserInput {
+  email: String!
+  message: String
+  role: UserRole!
+}
+
+enum Locale {
+  AR
+  EN
+}
+
+type Mutation {
+  acceptInvitation(input: AcceptInvitationInput!): User!
+  inviteUser(input: InviteUserInput!): Invitation!
+  resendInvitation(id: ID!): String!
+  revokeInvitation(id: ID!): String!
+}
+
+type Query {
+  invitations: [Invitation!]!
+  me: User!
+  user(id: ID!): User
+  users: [User!]!
+  usersForAssignment: [User!]!
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  emailVerifiedAt: DateTime
+  id: ID!
+  isActive: Boolean!
+  lastLoginAt: DateTime
+  preferredLocale: Locale!
+  role: UserRole!
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+}

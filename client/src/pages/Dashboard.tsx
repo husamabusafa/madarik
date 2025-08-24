@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
-import { 
-  Home, 
-  MessageSquare, 
+import { useI18n } from '../contexts/I18nContext';
+import {
+  Home,
+  MessageSquare,
   Eye,
   DollarSign,
   Plus,
@@ -16,16 +17,18 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Table from '../components/common/Table';
 import { Link } from 'react-router-dom';
+import { clsx } from 'clsx';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const { t, isRTL } = useI18n();
 
   // Mock data for the dashboard
   const stats = [
-    { title: 'Total Properties', value: '247', icon: Home, change: { value: 12, type: 'increase' as const }, color: 'blue' as const },
-    { title: 'Active Leads', value: '89', icon: MessageSquare, change: { value: 8, type: 'increase' as const }, color: 'green' as const },
-    { title: 'Monthly Views', value: '12.4K', icon: Eye, change: { value: 15, type: 'increase' as const }, color: 'purple' as const },
-    { title: 'Total Revenue', value: '$1.2M', icon: DollarSign, change: { value: 23, type: 'increase' as const }, color: 'orange' as const },
+    { title: t('dashboard.totalProperties'), value: '247', icon: Home, change: { value: 12, type: 'increase' as const }, color: 'blue' as const },
+    { title: t('dashboard.activeLeads'), value: '89', icon: MessageSquare, change: { value: 8, type: 'increase' as const }, color: 'green' as const },
+    { title: t('dashboard.monthlyViews'), value: '12.4K', icon: Eye, change: { value: 15, type: 'increase' as const }, color: 'purple' as const },
+    { title: t('dashboard.totalRevenue'), value: '$1.2M', icon: DollarSign, change: { value: 23, type: 'increase' as const }, color: 'orange' as const },
   ];
 
   const recentLeads = [
@@ -94,10 +97,10 @@ const Dashboard: React.FC = () => {
       >
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.email?.split('@')[0]}!
+            {t('dashboard.welcomeBack')}, {user?.email?.split('@')[0]}!
           </h1>
           <p className="mt-2 text-gray-600">
-            Here's what's happening with your real estate platform today.
+            {t('dashboard.subtitle')}
           </p>
         </div>
       </motion.div>
@@ -129,7 +132,7 @@ const Dashboard: React.FC = () => {
       >
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Quick Actions</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.quickActions')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link to="/properties/new">
@@ -142,12 +145,12 @@ const Dashboard: React.FC = () => {
                   <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
                     <Plus className="h-5 w-5 text-blue-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">Add Property</p>
-                    <p className="text-xs text-gray-500">Create a new listing</p>
+                  <div className={isRTL ? 'mr-3' : 'ml-3'}>
+                    <p className="text-sm font-medium text-gray-900">{t('dashboard.addProperty')}</p>
+                    <p className="text-xs text-gray-500">{t('dashboard.addPropertyDesc')}</p>
                   </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors" />
+                <ArrowRight className={clsx('h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors', isRTL && 'rotate-180')} />
               </motion.div>
             </Link>
 
@@ -161,12 +164,12 @@ const Dashboard: React.FC = () => {
                   <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
                     <MessageSquare className="h-5 w-5 text-green-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">Manage Leads</p>
-                    <p className="text-xs text-gray-500">Review inquiries</p>
+                  <div className={isRTL ? 'mr-3' : 'ml-3'}>
+                    <p className="text-sm font-medium text-gray-900">{t('dashboard.manageLeads')}</p>
+                    <p className="text-xs text-gray-500">{t('dashboard.manageLeadsDesc')}</p>
                   </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-green-600 transition-colors" />
+                <ArrowRight className={clsx('h-4 w-4 text-gray-400 group-hover:text-green-600 transition-colors', isRTL && 'rotate-180')} />
               </motion.div>
             </Link>
 
@@ -180,12 +183,12 @@ const Dashboard: React.FC = () => {
                   <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
                     <BarChart3 className="h-5 w-5 text-purple-600" />
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">View Analytics</p>
-                    <p className="text-xs text-gray-500">Performance insights</p>
+                  <div className={isRTL ? 'mr-3' : 'ml-3'}>
+                    <p className="text-sm font-medium text-gray-900">{t('dashboard.viewAnalytics')}</p>
+                    <p className="text-xs text-gray-500">{t('dashboard.viewAnalyticsDesc')}</p>
                   </div>
                 </div>
-                <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-purple-600 transition-colors" />
+                <ArrowRight className={clsx('h-4 w-4 text-gray-400 group-hover:text-purple-600 transition-colors', isRTL && 'rotate-180')} />
               </motion.div>
             </Link>
           </div>
@@ -202,11 +205,11 @@ const Dashboard: React.FC = () => {
         >
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Leads</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.recentLeads')}</h3>
               <Link to="/leads">
                 <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                  View all
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  {t('common.view')} {t('common.all')}
+                  <ArrowRight className={clsx('h-4 w-4', isRTL ? 'mr-2 rotate-180' : 'ml-2')} />
                 </Button>
               </Link>
             </div>
@@ -226,11 +229,11 @@ const Dashboard: React.FC = () => {
         >
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Properties</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.recentProperties')}</h3>
               <Link to="/properties">
                 <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
-                  View all
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  {t('common.view')} {t('common.all')}
+                  <ArrowRight className={clsx('h-4 w-4', isRTL ? 'mr-2 rotate-180' : 'ml-2')} />
                 </Button>
               </Link>
             </div>

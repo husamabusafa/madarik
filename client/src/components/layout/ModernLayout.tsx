@@ -15,7 +15,11 @@ import {
   X,
   Globe,
   User,
-  Bell
+  Bell,
+  Images,
+  Tags,
+  BarChart3,
+  FileText
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -26,12 +30,16 @@ interface NavItem {
   roles?: string[];
 }
 
-const navigation: NavItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Properties', href: '/properties', icon: Home },
-  { name: 'Leads', href: '/leads', icon: MessageSquare },
-  { name: 'Users', href: '/users', icon: Users, roles: ['ADMIN'] },
-  { name: 'Settings', href: '/settings', icon: Settings },
+const getNavigation = (t: (key: any) => string): NavItem[] => [
+  { name: t('nav.dashboard'), href: '/dashboard', icon: LayoutDashboard },
+  { name: t('nav.properties'), href: '/properties', icon: Home },
+  { name: t('nav.leads'), href: '/leads', icon: MessageSquare },
+  { name: t('nav.media'), href: '/media', icon: Images },
+  { name: t('nav.amenities'), href: '/amenities', icon: Tags },
+  { name: t('nav.analytics'), href: '/analytics', icon: BarChart3 },
+  { name: t('nav.content'), href: '/content', icon: FileText },
+  { name: t('nav.users'), href: '/users', icon: Users, roles: ['ADMIN'] },
+  { name: t('nav.settings'), href: '/settings', icon: Settings },
 ];
 
 export default function ModernLayout() {
@@ -46,6 +54,7 @@ export default function ModernLayout() {
     navigate('/auth/login');
   };
 
+  const navigation = getNavigation(t);
   const filteredNavigation = navigation.filter(item => 
     !item.roles || (user?.role && item.roles.includes(user.role))
   );
@@ -59,10 +68,11 @@ export default function ModernLayout() {
       <div className="flex h-16 shrink-0 items-center px-6">
         <Building className={clsx('h-8 w-8', mobile ? 'text-blue-600' : 'text-blue-400')} />
         <span className={clsx(
-          'ml-3 text-xl font-bold',
+          'text-xl font-bold',
+          isRTL ? 'mr-3' : 'ml-3',
           mobile ? 'text-gray-900' : 'text-white'
         )}>
-          Madarik
+          {t('app.name')}
         </span>
       </div>
 
@@ -89,7 +99,8 @@ export default function ModernLayout() {
                 >
                   <item.icon
                     className={clsx(
-                      'mr-3 h-5 w-5 transition-colors',
+                      'h-5 w-5 transition-colors',
+                      isRTL ? 'ml-3' : 'mr-3',
                       isActive
                         ? mobile ? 'text-blue-700' : 'text-white'
                         : mobile ? 'text-gray-400 group-hover:text-gray-500' : 'text-slate-400 group-hover:text-white'
@@ -99,7 +110,8 @@ export default function ModernLayout() {
                   {isActive && (
                     <motion.div
                       className={clsx(
-                        'ml-auto h-2 w-2 rounded-full',
+                        'h-2 w-2 rounded-full',
+                        isRTL ? 'mr-auto' : 'ml-auto',
                         mobile ? 'bg-blue-600' : 'bg-white'
                       )}
                       layoutId="activeIndicator"
@@ -122,7 +134,7 @@ export default function ModernLayout() {
               )}>
                 <User className={clsx('h-4 w-4', mobile ? 'text-blue-600' : 'text-white')} />
               </div>
-              <div className="ml-3 flex-1 min-w-0">
+              <div className={clsx('flex-1 min-w-0', isRTL ? 'mr-3' : 'ml-3')}>
                 <p className={clsx(
                   'truncate text-xs font-medium',
                   mobile ? 'text-gray-900' : 'text-white'
@@ -133,7 +145,7 @@ export default function ModernLayout() {
                   'truncate text-xs',
                   mobile ? 'text-gray-500' : 'text-slate-300'
                 )}>
-                  {user?.role}
+                  {user?.role === 'ADMIN' ? t('users.admin') : t('users.manager')}
                 </p>
               </div>
             </div>
@@ -150,10 +162,11 @@ export default function ModernLayout() {
               )}
             >
               <Globe className={clsx(
-                'mr-3 h-5 w-5',
+                'h-5 w-5',
+                isRTL ? 'ml-3' : 'mr-3',
                 mobile ? 'text-gray-400 group-hover:text-gray-500' : 'text-slate-400 group-hover:text-white'
               )} />
-              {locale === 'EN' ? 'العربية' : 'English'}
+              {locale === 'EN' ? t('common.arabic') : t('common.english')}
             </button>
 
             <button
@@ -166,7 +179,8 @@ export default function ModernLayout() {
               )}
             >
               <LogOut className={clsx(
-                'mr-3 h-5 w-5',
+                'h-5 w-5',
+                isRTL ? 'ml-3' : 'mr-3',
                 mobile ? 'text-red-500 group-hover:text-red-600' : 'text-red-400 group-hover:text-red-300'
               )} />
               {t('auth.logout')}

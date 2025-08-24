@@ -1,16 +1,101 @@
 @import "tailwindcss";
 
-/* Default to dark mode */
+/* Light theme for admin panel */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
-  --bg: 17 24 39; /* gray-900 */
-  --panel: 31 41 55; /* gray-800 */
-  --text: 229 231 235; /* gray-200 */
+  --bg: 249 250 251; /* gray-50 */
+  --panel: 255 255 255; /* white */
+  --text: 31 41 55; /* gray-800 */
 }
 
 body {
-  @apply bg-gray-900 text-gray-200;
+  @apply bg-gray-50 text-gray-900;
+}
+
+/* RTL-specific styles */
+[dir="rtl"] {
+  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+}
+
+/* RTL-aware utilities */
+[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .space-x-4 > :not([hidden]) ~ :not([hidden]) {
+  margin-right: 1rem;
+  margin-left: 0;
+}
+
+[dir="rtl"] .space-x-3 > :not([hidden]) ~ :not([hidden]) {
+  margin-right: 0.75rem;
+  margin-left: 0;
+}
+
+[dir="rtl"] .space-x-2 > :not([hidden]) ~ :not([hidden]) {
+  margin-right: 0.5rem;
+  margin-left: 0;
+}
+
+[dir="rtl"] .space-x-1 > :not([hidden]) ~ :not([hidden]) {
+  margin-right: 0.25rem;
+  margin-left: 0;
+}
+
+/* RTL-aware text alignment */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: left;
+}
+
+/* RTL-aware positioning */
+[dir="rtl"] .left-0 {
+  left: auto;
+  right: 0;
+}
+
+[dir="rtl"] .right-0 {
+  right: auto;
+  left: 0;
+}
+
+[dir="rtl"] .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+[dir="rtl"] .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* Form input RTL styling */
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] textarea,
+[dir="rtl"] select {
+  text-align: right;
+}
+
+/* Table RTL styling */
+[dir="rtl"] table {
+  direction: rtl;
+}
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+/* Arabic number formatting */
+[dir="rtl"] .number {
+  direction: ltr;
+  text-align: left;
 }
