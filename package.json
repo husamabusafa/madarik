@@ -1,34 +1,48 @@
 {
   "name": "madarik",
   "version": "1.0.0",
-  "description": "Madarik Real Estate Platform - Bilingual real estate listings with company-centric selling",
+  "description": "Madarik Real Estate Platform - Full Stack Application",
   "private": true,
-  "workspaces": [
-    "client",
-    "server"
-  ],
   "scripts": {
-    "dev": "concurrently \"pnpm run dev:server\" \"pnpm run dev:client\"",
-    "dev:client": "cd client && pnpm run dev",
-    "dev:server": "cd server && pnpm run start:dev",
-    "build": "pnpm run build:server && pnpm run build:client",
-    "build:client": "cd client && pnpm run build",
-    "build:server": "cd server && pnpm run build",
-    "install:all": "pnpm install && cd client && pnpm install && cd ../server && pnpm install",
-    "clean": "rm -rf node_modules client/node_modules server/node_modules client/dist server/dist",
-    "prisma:generate": "cd server && pnpm run prisma:generate",
-    "prisma:migrate": "cd server && pnpm run prisma:migrate",
-    "prisma:studio": "cd server && pnpm run prisma:studio",
-    "prisma:seed": "cd server && pnpm run prisma:seed",
-    "db:reset": "cd server && pnpm run db:reset"
+    "dev": "./start-dev.sh",
+    "dev:windows": "start-dev.bat",
+    "server:dev": "cd server && npm run start:dev",
+    "server:start": "cd server && npm run start:prod",
+    "server:build": "cd server && npm run build",
+    "client:dev": "cd client && npm run dev",
+    "client:build": "cd client && npm run build",
+    "client:preview": "cd client && npm run preview",
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "build:all": "npm run server:build && npm run client:build",
+    "db:generate": "cd server && npm run db:generate",
+    "db:push": "cd server && npm run db:push",
+    "db:migrate": "cd server && npm run db:migrate",
+    "db:seed": "cd server && npm run db:seed",
+    "db:studio": "cd server && npm run db:studio",
+    "setup": "npm run install:all && npm run db:generate && npm run db:push && npm run db:seed"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
-  },
+
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "npm": ">=8.0.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "keywords": [
+    "real-estate",
+    "nestjs",
+    "react",
+    "typescript",
+    "prisma",
+    "full-stack"
+  ],
+  "author": "Madarik Team",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/husamabusafa/madarik.git"
+  },
+  "bugs": {
+    "url": "https://github.com/husamabusafa/madarik/issues"
+  },
+  "homepage": "https://github.com/husamabusafa/madarik#readme"
 }
-

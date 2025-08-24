@@ -1,223 +1,287 @@
 # Madarik Real Estate Platform
 
-A modern, bilingual (Arabic/English) real estate platform with company-centric selling, built with NestJS GraphQL backend and React frontend.
+A modern, bilingual (Arabic/English) real estate platform built with NestJS and React. Features invite-only staff management, property listings, lead capture, and comprehensive admin tools.
+
+## 🏗️ Architecture
+
+```
+madarik/
+├── server/          # NestJS backend API
+├── client/          # React frontend
+├── start-dev.sh     # Unix/Mac startup script
+├── start-dev.bat    # Windows startup script
+└── package.json     # Root package with unified scripts
+```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
-- PostgreSQL database
-- pnpm 8+
 
-### One-Command Development
+- Node.js 18 or higher
+- PostgreSQL database
+- SMTP email service (Gmail, SendGrid, etc.)
+
+### 1. Clone and Install
 
 ```bash
-# Install all dependencies and start both client and server
-pnpm install
-pnpm dev
+git clone <repository-url>
+cd madarik
+
+# Install all dependencies (server + client)
+npm run install:all
 ```
 
-This will start:
-- **Frontend (React + Vite)**: http://localhost:5100
-- **Backend (NestJS + GraphQL)**: http://localhost:3100
-- **GraphQL Playground**: http://localhost:3100/graphql
+### 2. Environment Setup
+
+**Server Configuration:**
+```bash
+cd server
+cp env.example .env
+# Edit .env with your database and email settings
+```
+
+**Client Configuration:**
+```bash
+cd client
+# Client will connect to server at http://localhost:3001 by default
+```
+
+### 3. Database Setup
+
+```bash
+# From root directory
+npm run db:generate  # Generate Prisma client
+npm run db:push      # Create database tables
+npm run db:seed      # Seed initial data (admin user, amenities)
+```
+
+### 4. Start Development Servers
+
+**Single Command (Recommended):**
+
+```bash
+# macOS/Linux
+npm run dev
+
+# Windows
+npm run dev:windows
+```
+
+This will start both:
+- 🖥️ **Client**: http://localhost:5100
+- 🔧 **Server**: http://localhost:3100
+- 📊 **API Health**: http://localhost:3100/api/v1/health
+
+**Individual Commands:**
+```bash
+# Start server only
+npm run server:dev
+
+# Start client only  
+npm run client:dev
+```
+
+### 5. Initial Login
+
+After seeding, log in with:
+- **Email**: `admin@madarik.com`
+- **Password**: `Admin123!`
+
+⚠️ **Change the admin password immediately after first login!**
+
+## 📋 Available Scripts
+
+### Development
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start both server and client (Unix/Mac) |
+| `npm run dev:windows` | Start both server and client (Windows) |
+| `npm run server:dev` | Start NestJS server only |
+| `npm run client:dev` | Start React client only |
+
+### Database
+| Command | Description |
+|---------|-------------|
+| `npm run db:generate` | Generate Prisma client |
+| `npm run db:push` | Push schema to database |
+| `npm run db:migrate` | Run database migrations |
+| `npm run db:seed` | Seed initial data |
+| `npm run db:studio` | Open Prisma Studio |
+
+### Build & Deploy
+| Command | Description |
+|---------|-------------|
+| `npm run build:all` | Build server and client |
+| `npm run server:build` | Build NestJS server |
+| `npm run client:build` | Build React client |
+
+### Setup
+| Command | Description |
+|---------|-------------|
+| `npm run install:all` | Install all dependencies |
+| `npm run setup` | Complete setup (install + db setup + seed) |
+
+## 🛠️ Tech Stack
+
+### Backend (NestJS)
+- **Framework**: NestJS 10+
+- **Language**: TypeScript
+- **Database**: PostgreSQL + Prisma ORM
+- **Authentication**: JWT with Passport.js
+- **Email**: Nodemailer
+- **Validation**: class-validator
+- **Security**: Guards, Rate limiting, CORS
+
+### Frontend (React)
+- **Framework**: React 18+ with Vite
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Routing**: React Router
+- **State**: Context API / Zustand
+- **Forms**: React Hook Form
+- **HTTP**: Axios
+
+## 🔐 Authentication & Roles
+
+### User Roles
+- **Admin**: Full access (invite users, manage all data)
+- **Manager**: Manage listings, leads, site settings
+- **Visitor**: Browse listings, submit leads (no login required)
+
+### Authentication Flow
+1. **Invite-only**: No public registration
+2. **Admin** invites staff via email
+3. **Email verification** required
+4. **JWT tokens** with HTTP-only cookies
+5. **Role-based** access control
+
+## 🏠 Core Features
+
+### Property Management
+- ✅ Bilingual listings (Arabic/English)
+- ✅ Media gallery with primary photo
+- ✅ Amenities and specifications
+- ✅ Geocoding and map integration
+- ✅ Status workflow (Draft → Ready → Published)
+
+### Lead Management
+- ✅ Contact form submissions
+- ✅ Lead assignment to staff
+- ✅ Email notifications
+- ✅ Rate limiting and spam protection
+
+### User Management
+- ✅ Invite-only staff onboarding
+- ✅ Role management (Admin/Manager)
+- ✅ Account activation/deactivation
+- ✅ Password reset functionality
+
+### Site Configuration
+- ✅ Company profile settings
+- ✅ Email notification recipients
+- ✅ Amenities management
+- ✅ Bilingual content support
+
+## 🌐 Localization
+
+- **Languages**: Arabic (RTL) and English (LTR)
+- **URL Structure**: `/ar/...` and `/en/...`
+- **Content**: All listings, UI, and emails support both languages
+- **SEO**: Proper hreflang tags and localized slugs
+
+## 📊 Database Schema
+
+Key entities:
+- **User**: Staff accounts (Admin/Manager)
+- **UserInvite**: Invitation system
+- **Listing**: Property listings with bilingual content
+- **ListingTranslation**: Localized content (AR/EN)
+- **Lead**: Customer inquiries
+- **Amenity**: Property features
+- **SiteSetting**: Company configuration
+
+## 🔒 Security Features
+
+- **JWT Authentication** with HTTP-only cookies
+- **Rate limiting** on sensitive endpoints
+- **Input validation** with DTOs
+- **SQL injection protection** via Prisma
+- **CORS configuration**
+- **Password hashing** with bcrypt
+- **Role-based access control**
 
 ## 📁 Project Structure
 
 ```
 madarik/
-├── README.md                 # This file
-├── BRD.md                   # Business Requirements Document
-├── SETUP.md                 # Detailed setup guide
-├── package.json             # Root workspace configuration
-├── pnpm-workspace.yaml      # pnpm workspace configuration
-├── client/                  # React frontend (Vite + TypeScript)
+├── server/                 # NestJS Backend
 │   ├── src/
-│   ├── package.json
-│   └── ...
-└── server/                  # NestJS backend (GraphQL + Prisma)
-    ├── src/
-    │   ├── auth/           # Authentication module
-    │   ├── user/           # User management
-    │   ├── company/        # Company management
-    │   ├── listing/        # Property listings
-    │   ├── prisma/         # Database service
-    │   └── common/         # Shared utilities
-    ├── prisma/
-    │   ├── schema.prisma   # Database schema
-    │   └── seed.ts         # Database seeding
-    └── package.json
+│   │   ├── auth/          # Authentication module
+│   │   ├── users/         # User management
+│   │   ├── email/         # Email service
+│   │   ├── database/      # Prisma integration
+│   │   └── common/        # Shared utilities
+│   ├── prisma/
+│   │   └── schema.prisma  # Database schema
+│   └── package.json
+├── client/                # React Frontend
+│   ├── src/
+│   │   ├── components/    # Reusable components
+│   │   ├── pages/         # Route components
+│   │   └── assets/        # Static assets
+│   └── package.json
+└── package.json           # Root package with unified scripts
 ```
-
-## 🛠️ Available Commands
-
-### Development
-```bash
-pnpm dev              # Start both client and server
-pnpm dev:client       # Start only the frontend
-pnpm dev:server       # Start only the backend
-```
-
-### Building
-```bash
-pnpm build            # Build both client and server
-pnpm build:client     # Build only the frontend
-pnpm build:server     # Build only the backend
-```
-
-### Database Management
-```bash
-pnpm prisma:generate  # Generate Prisma client
-pnpm prisma:migrate   # Run database migrations
-pnpm prisma:studio    # Open Prisma Studio (database GUI)
-pnpm prisma:seed      # Seed database with initial data
-pnpm db:reset         # Reset database (development only)
-```
-
-### Maintenance
-```bash
-pnpm install:all      # Install dependencies in all workspaces
-pnpm clean            # Clean all node_modules and build artifacts
-```
-
-## 🏗️ Architecture
-
-### Backend (NestJS + GraphQL + Prisma)
-- **Framework**: NestJS with TypeScript
-- **API**: GraphQL with Apollo Server
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: JWT with role-based access control
-- **Features**: User management, company teams, property listings, lead capture
-
-### Frontend (React + Vite + TypeScript)
-- **Framework**: React 18 with TypeScript
-- **Build Tool**: Vite for fast development
-- **Styling**: Modern CSS with responsive design
-- **Features**: Bilingual support (Arabic RTL/English LTR), interactive maps, search & filters
-
-## 🌍 Bilingual Support
-
-The platform supports both Arabic and English:
-- **Arabic**: Right-to-left (RTL) layout
-- **English**: Left-to-right (LTR) layout
-- **Content**: Multilingual database schema for listings
-- **UI**: Complete translation coverage
-
-## 🔐 Authentication & Roles
-
-### User Roles
-- **Visitor/Buyer**: Browse listings, save favorites, submit leads
-- **Company Member**: Create/edit listings, view leads
-- **Company Owner**: Manage company, invite team members, publish listings, export leads
-
-### Security Features
-- JWT-based authentication
-- Password hashing with bcryptjs
-- Email verification workflow
-- Role-based access control
-- CORS protection
-
-## 📊 Database Schema
-
-Key entities:
-- **Users**: Authentication and profiles
-- **Companies**: Real estate companies with team management
-- **Listings**: Properties with multilingual content
-- **Leads**: Contact inquiries from potential buyers
-- **Amenities**: System-wide property features
-- **Media Assets**: Photos and videos for listings
 
 ## 🚀 Deployment
 
-### Environment Setup
-
-1. **Copy environment files:**
-   ```bash
-   cp server/.env.example server/.env
-   ```
-
-2. **Configure database and services in `.env`:**
-   ```env
-   DATABASE_URL="postgresql://user:pass@localhost:5432/madarik"
-   JWT_SECRET="your-secret-key"
-   FRONTEND_URL="http://localhost:5100"
-   ```
-
-3. **Set up database:**
-   ```bash
-   pnpm prisma:migrate
-   pnpm prisma:seed
-   ```
-
-### Production Build
+### Development
 ```bash
-pnpm build
+npm run dev  # Start both servers
 ```
 
-## 📚 Documentation
+### Production
+```bash
+# Build both applications
+npm run build:all
 
-- **[BRD.md](./BRD.md)**: Complete business requirements
-- **[SETUP.md](./SETUP.md)**: Detailed setup and development guide
-- **[Server README](./server/README.md)**: Backend-specific documentation
+# Start production servers
+npm run server:start  # NestJS server
+npm run client:preview  # Serve built React app
+```
 
-## 🤝 Development Workflow
+### Environment Variables
 
-1. **Start development:**
-   ```bash
-   pnpm dev
-   ```
+**Server (.env):**
+```env
+DATABASE_URL="postgresql://user:pass@localhost:5432/madarik_db"
+JWT_SECRET="your-secret-key"
+SMTP_HOST="smtp.gmail.com"
+SMTP_USER="your-email@gmail.com"
+SMTP_PASS="your-app-password"
+CLIENT_URL="http://localhost:5100"
+```
 
-2. **Make changes** to either client or server code
+## 📖 Documentation
 
-3. **Database changes:**
-   ```bash
-   # Update prisma/schema.prisma
-   pnpm prisma:migrate
-   ```
+- **Server API**: See `server/README.md`
+- **Client App**: See `client/README.md`
+- **BRD**: See `BRD.md` for detailed requirements
 
-4. **View database:**
-   ```bash
-   pnpm prisma:studio
-   ```
+## 🤝 Contributing
 
-## 🎯 Key Features
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
 
-### ✅ Implemented (Backend)
-- Complete GraphQL API foundation
-- User authentication and authorization
-- Company and team management structure
-- Listing management with status workflow
-- Database schema with bilingual support
-- Input validation and error handling
+## 📄 License
 
-### 🚧 In Development (Frontend)
-- Authentication UI (login/register)
-- Company dashboard and team management
-- Listing creation and management interface
-- Public search and listing views
-- Interactive map integration
-- Bilingual UI implementation
-
-## 📈 Next Steps
-
-1. **Complete GraphQL resolvers** for all CRUD operations
-2. **Implement email service** for verification and notifications
-3. **Add file upload** for listing media
-4. **Build React frontend** components
-5. **Integrate mapping service** (Google Maps/MapBox)
-6. **Add real-time features** with subscriptions
-
-## 🏠 About Madarik
-
-Madarik is a modern real estate platform designed for the Middle East market, featuring:
-- Company-centric selling model
-- Bilingual Arabic/English support
-- Team collaboration tools
-- Advanced search and filtering
-- Interactive map-based discovery
-- Lead management system
+MIT License - see LICENSE file for details.
 
 ---
 
-**Ready to build the future of real estate! 🏗️**
-# madarik
+**Happy coding! 🎉**
+
+For support or questions, please check the individual README files in the `server/` and `client/` directories.
