@@ -7,6 +7,7 @@ import { I18nProvider } from './contexts/I18nContext';
 // Layout Components
 import SimpleLayout from './components/layout/SimpleLayout';
 import AuthLayout from './components/layout/AuthLayout';
+import ModernLayout from './components/layout/ModernLayout';
 
 // Auth Pages
 import Login from './pages/auth/Login';
@@ -18,6 +19,10 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 // Main App Pages
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
+import Properties from './pages/Properties';
+import Leads from './pages/Leads';
+import Users from './pages/Users';
+import Settings from './pages/Settings';
 
 function App() {
   return (
@@ -36,14 +41,23 @@ function App() {
                 <Route index element={<Navigate to="/auth/login" replace />} />
               </Route>
 
-              {/* Main App Routes */}
-              <Route path="/" element={<SimpleLayout />}>
-                <Route index element={<Home />} />
+              {/* Admin/Staff Routes with Modern Layout */}
+              <Route path="/" element={<ModernLayout />}>
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="properties" element={<Properties />} />
+                <Route path="leads" element={<Leads />} />
+                <Route path="users" element={<Users />} />
+                <Route path="settings" element={<Settings />} />
+                <Route index element={<Navigate to="/dashboard" replace />} />
               </Route>
 
-              {/* Catch all - redirect to home */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              {/* Public Routes (will be added later for property listings) */}
+              <Route path="/public" element={<SimpleLayout />}>
+                <Route index element={<Home />} />
+              </Route>
+
+              {/* Catch all - redirect to dashboard */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </Router>
         </AuthProvider>
