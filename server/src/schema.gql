@@ -2,30 +2,116 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-input AcceptInvitationInput {
+input AcceptInviteInput {
   password: String!
-  preferredLocale: String
   token: String!
+}
+
+type Amenity {
+  active: Boolean!
+  createdAt: DateTime!
+  id: ID!
+  key: String!
+  labelAr: String!
+  labelEn: String!
+  updatedAt: DateTime!
+}
+
+enum AreaUnit {
+  SQFT
+  SQM
+}
+
+type AuthPayload {
+  token: String!
+  user: User!
+}
+
+input CreateAmenityInput {
+  active: Boolean! = true
+  key: String!
+  labelAr: String!
+  labelEn: String!
+}
+
+input CreateInviteInput {
+  email: String!
+  message: String
+  role: UserRole! = MANAGER
+}
+
+input CreateLeadInput {
+  consent: Boolean! = false
+  email: String!
+  ipAddress: String
+  listingId: String!
+  message: String
+  name: String!
+  phone: String
+  source: String
+  userAgent: String
+}
+
+input CreateListingInput {
+  addressLine: String!
+  areaCode: String
+  areaUnit: AreaUnit
+  areaValue: String
+  bathrooms: Float
+  bedrooms: Float
+  city: String!
+  country: String!
+  currency: String
+  lat: String!
+  listingType: ListingType!
+  lng: String!
+  parking: Float
+  price: String
+  primaryPhotoUrl: String
+  propertyType: PropertyType!
+  translations: [CreateListingTranslationInput!]!
+  yearBuilt: Float
+  zoomHint: Float
+}
+
+input CreateListingTranslationInput {
+  areaName: String
+  description: String!
+  displayAddressLine: String
+  locale: String!
+  slug: String!
+  title: String!
+}
+
+input CreateMediaAssetInput {
+  listingId: String!
+  sortOrder: Float! = 0
+  type: MediaType! = PHOTO
+  url: String!
+}
+
+input CreateSiteSettingInput {
+  city: String
+  country: String
+  logoUrl: String
+  publicEmail: String
+  publicPhone: String
+  siteNameAr: String!
+  siteNameEn: String!
+  website: String
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  preferredLocale: Locale! = EN
+  role: UserRole! = MANAGER
 }
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
-
-type Invitation {
-  acceptedAt: DateTime
-  acceptedUser: User
-  acceptedUserId: String
-  createdAt: DateTime!
-  email: String!
-  expiresAt: DateTime!
-  id: ID!
-  invitedRole: UserRole!
-  inviter: User!
-  inviterUserId: String!
-  status: InviteStatus!
-}
 
 enum InviteStatus {
   ACCEPTED
@@ -34,10 +120,86 @@ enum InviteStatus {
   REVOKED
 }
 
-input InviteUserInput {
+type Lead {
+  assignedTo: User
+  assignedToUserId: String
+  consent: Boolean!
+  createdAt: DateTime!
   email: String!
+  id: ID!
+  ipAddress: String
+  listing: Listing!
+  listingId: String!
   message: String
-  role: UserRole!
+  name: String!
+  phone: String
+  source: String
+  userAgent: String
+}
+
+type LeadStats {
+  assignedLeads: Float!
+  conversionRate: Float!
+  newLeads: Float!
+  thisWeekLeads: Float!
+  totalLeads: Float!
+  unassignedLeads: Float!
+}
+
+type Listing {
+  addressLine: String!
+  areaCode: String
+  areaUnit: AreaUnit
+  areaValue: String
+  bathrooms: Float
+  bedrooms: Float
+  city: String!
+  country: String!
+  createdAt: DateTime!
+  createdBy: User
+  createdByUserId: String
+  currency: String
+  id: ID!
+  lastEditedBy: User
+  lastEditedByUserId: String
+  lat: String!
+  listingType: ListingType!
+  lng: String!
+  parking: Float
+  price: String
+  primaryPhotoUrl: String
+  propertyType: PropertyType!
+  publishedAt: DateTime
+  status: ListingStatus!
+  translations: [ListingTranslation!]!
+  updatedAt: DateTime!
+  yearBuilt: Float
+  zoomHint: Float
+}
+
+enum ListingStatus {
+  ARCHIVED
+  DRAFT
+  PUBLISHED
+  READY_TO_PUBLISH
+}
+
+type ListingTranslation {
+  areaName: String
+  createdAt: DateTime!
+  description: String!
+  displayAddressLine: String
+  id: ID!
+  listingId: String!
+  locale: String!
+  slug: String!
+  title: String!
+  updatedAt: DateTime!
+}
+
+enum ListingType {
+  RENT
+  SALE
 }
 
 enum Locale {
@@ -45,36 +207,185 @@ enum Locale {
   EN
 }
 
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type MediaAsset {
+  createdAt: DateTime!
+  id: ID!
+  listingId: String!
+  sortOrder: Float!
+  type: MediaType!
+  url: String!
+}
+
+enum MediaType {
+  PHOTO
+  VIDEO
+}
+
 type Mutation {
-  acceptInvitation(input: AcceptInvitationInput!): User!
-  inviteUser(input: InviteUserInput!): Invitation!
-  resendInvitation(id: ID!): String!
-  revokeInvitation(id: ID!): String!
-  updateProfile(input: UpdateProfileInput!): User!
-  updateUserProfile(id: ID!, input: UpdateProfileInput!): User!
-  updateUserRole(id: ID!, input: UpdateUserRoleInput!): User!
-  updateUserStatus(id: ID!, input: UpdateUserStatusInput!): User!
+  acceptInvite(input: AcceptInviteInput!): User!
+  assignLead(id: ID!, userId: ID!): Lead!
+  createAmenity(input: CreateAmenityInput!): Amenity!
+  createInvite(input: CreateInviteInput!): UserInvite!
+  createLead(input: CreateLeadInput!): Lead!
+  createListing(input: CreateListingInput!): Listing!
+  createMediaAsset(input: CreateMediaAssetInput!): MediaAsset!
+  createSiteSettings(input: CreateSiteSettingInput!): SiteSetting!
+  createUser(input: CreateUserInput!): User!
+  deleteAmenity(id: ID!): Boolean!
+  deleteInvite(id: ID!): Boolean!
+  deleteLead(id: ID!): Boolean!
+  deleteListing(id: ID!): Boolean!
+  deleteMediaAsset(id: ID!): Boolean!
+  deleteSiteSettings: Boolean!
+  deleteUser(id: ID!): Boolean!
+  incrementListingViews(id: ID!): Boolean!
+  login(input: LoginInput!): AuthPayload!
+  reorderMedia(input: ReorderMediaInput!, listingId: ID!): [MediaAsset!]!
+  resendInvite(id: ID!): UserInvite!
+  revokeInvite(id: ID!): UserInvite!
+  toggleAmenityActive(id: ID!): Amenity!
+  unassignLead(id: ID!): Lead!
+  updateAmenity(id: ID!, input: UpdateAmenityInput!): Amenity!
+  updateLead(id: ID!, input: UpdateLeadInput!): Lead!
+  updateListing(id: ID!, input: UpdateListingInput!): Listing!
+  updateListingStatus(id: ID!, reason: String, status: ListingStatus!): Listing!
+  updateMediaAsset(id: ID!, input: UpdateMediaAssetInput!): MediaAsset!
+  updateSiteSettings(input: UpdateSiteSettingInput!): SiteSetting!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  verifyUserEmail(id: ID!): User!
+}
+
+enum PropertyType {
+  APARTMENT
+  COMMERCIAL
+  HOUSE
+  INDUSTRIAL
+  LAND
+  OFFICE
+  OTHER
+  RETAIL
+  TOWNHOUSE
+  VILLA
 }
 
 type Query {
-  invitations: [Invitation!]!
-  me: User!
-  user(id: ID!): User
-  userStats: UserStatsType!
+  activeAmenities: [Amenity!]!
+  amenities: [Amenity!]!
+  amenity(id: ID!): Amenity!
+  invite(id: ID!): UserInvite!
+  inviteByToken(token: String!): UserInvite!
+  invites: [UserInvite!]!
+  lead(id: ID!): Lead!
+  leadStats: LeadStats!
+  leads: [Lead!]!
+  leadsByListing(listingId: ID!): [Lead!]!
+  listing(id: ID!): Listing!
+  listings: [Listing!]!
+  me: User
+  mediaAsset(id: ID!): MediaAsset!
+  mediaAssets: [MediaAsset!]!
+  mediaByListing(listingId: ID!): [MediaAsset!]!
+  myLeads: [Lead!]!
+  publishedListings: [Listing!]!
+  searchLeads(query: String!): [Lead!]!
+  searchListings(filters: SearchListingsFiltersInput, query: String): [Listing!]!
+  siteSettings: SiteSetting!
+  user(id: ID!): User!
+  userStats: UserStats!
   users: [User!]!
-  usersForAssignment: [User!]!
 }
 
-input UpdateProfileInput {
+input ReorderMediaInput {
+  mediaIds: [ID!]!
+}
+
+input SearchListingsFiltersInput {
+  bathrooms: Float
+  bedrooms: Float
+  listingType: ListingType
+  maxPrice: Float
+  minPrice: Float
+  propertyType: PropertyType
+}
+
+type SiteSetting {
+  city: String
+  country: String
+  createdAt: DateTime!
+  id: ID!
+  logoUrl: String
+  publicEmail: String
+  publicPhone: String
+  siteNameAr: String!
+  siteNameEn: String!
+  updatedAt: DateTime!
+  website: String
+}
+
+input UpdateAmenityInput {
+  active: Boolean
+  key: String
+  labelAr: String
+  labelEn: String
+}
+
+input UpdateLeadInput {
+  assignedToUserId: String
+  email: String
+  message: String
+  name: String
+  phone: String
+}
+
+input UpdateListingInput {
+  addressLine: String
+  areaCode: String
+  areaUnit: AreaUnit
+  areaValue: String
+  bathrooms: Float
+  bedrooms: Float
+  city: String
+  country: String
+  currency: String
+  lat: String
+  listingType: ListingType
+  lng: String
+  parking: Float
+  price: String
+  primaryPhotoUrl: String
+  propertyType: PropertyType
+  status: ListingStatus
+  yearBuilt: Float
+  zoomHint: Float
+}
+
+input UpdateMediaAssetInput {
+  sortOrder: Float
+  type: MediaType
+  url: String
+}
+
+input UpdateSiteSettingInput {
+  city: String
+  country: String
+  logoUrl: String
+  publicEmail: String
+  publicPhone: String
+  siteNameAr: String
+  siteNameEn: String
+  website: String
+}
+
+input UpdateUserInput {
+  email: String
+  isActive: Boolean
   preferredLocale: Locale
-}
-
-input UpdateUserRoleInput {
-  role: UserRole!
-}
-
-input UpdateUserStatusInput {
-  isActive: Boolean!
+  role: UserRole
 }
 
 type User {
@@ -88,15 +399,29 @@ type User {
   role: UserRole!
 }
 
+type UserInvite {
+  acceptedAt: DateTime
+  acceptedUser: User
+  acceptedUserId: String
+  createdAt: DateTime!
+  email: String!
+  expiresAt: DateTime!
+  id: ID!
+  invitedRole: UserRole!
+  inviter: User!
+  inviterUserId: String!
+  status: InviteStatus!
+  token: String!
+}
+
 enum UserRole {
   ADMIN
   MANAGER
 }
 
-type UserStatsType {
+type UserStats {
   activeUsers: Float!
   adminUsers: Float!
-  inactiveUsers: Float!
   managerUsers: Float!
   totalUsers: Float!
 }

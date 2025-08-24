@@ -50,16 +50,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const validateTokenAndFetchUser = async (token: string) => {
     try {
-      const response = await fetch('http://localhost:3100/api/v1/auth/me', {
-        method: 'GET',
+      const response = await fetch('http://localhost:3100/graphql', {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        credentials: 'include',
+        body: JSON.stringify({
+          query: `query Me { me { id email role preferredLocale isActive } }`,
+        }),
       });
 
-      if (!response.ok) {
+      const json = await response.json();
+      if (!response.ok || json.errors) {
         // Token is invalid, remove it
         localStorage.removeItem('token');
         setToken(null);
@@ -68,8 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return;
       }
 
-      const json = await response.json();
-      const userData = json.data;
+      const userData = json.data?.me ?? null;
       setUser(userData);
     } catch (error) {
       console.error('Token validation error:', error);
@@ -85,24 +87,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3100/api/v1/auth/login', {
+      const response = await fetch('http://localhost:3100/graphql', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `mutation Login($email: String!, $password: String!) {\n            login(input: { email: $email, password: $password }) {\n              token\n              user { id email role preferredLocale isActive }\n            }\n          }`,
+          variables: { email, password },
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Login failed');
+      const json = await response.json();
+      if (!response.ok || json.errors) {
+        throw new Error(json.errors?.[0]?.message || 'Login failed');
       }
 
-      const json = await response.json();
-      const data = json.data;
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('token', data.token);
+      const payload = json.data?.login;
+      if (!payload?.token || !payload?.user) {
+        throw new Error('Invalid login response');
+      }
+      setToken(payload.token);
+      setUser(payload.user);
+      localStorage.setItem('token', payload.token);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -112,15 +117,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    // Inform server to clear httpOnly cookie
-    fetch('http://localhost:3100/api/v1/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    }).finally(() => {
-      setUser(null);
-      setToken(null);
-      localStorage.removeItem('token');
-    });
+    // Client-side logout for JWT in localStorage
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem('token');
   };
 
   const acceptInvite = async (tokenValue: string, password: string, preferredLocale?: 'EN' | 'AR') => {

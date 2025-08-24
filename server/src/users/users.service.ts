@@ -1,57 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { UserRole, Locale } from '@prisma/client';
+import { CreateUserInput, UpdateUserInput, UserStats } from './dto/user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllUsers(page: number = 1, limit: number = 20) {
-    const skip = (page - 1) * limit;
-
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          email: true,
-          role: true,
-          preferredLocale: true,
-          isActive: true,
-          emailVerifiedAt: true,
-          createdAt: true,
-          lastLoginAt: true,
-        },
-      }),
-      this.prisma.user.count(),
-    ]);
-
-    return {
-      users,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+  async findAll() {
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
-  async getUserById(userId: string) {
+  async findById(id: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        preferredLocale: true,
-        isActive: true,
-        emailVerifiedAt: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
+      where: { id },
     });
 
     if (!user) {
@@ -61,225 +25,83 @@ export class UsersService {
     return user;
   }
 
-  async updateUserRole(userId: string, role: UserRole) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({
+      where: { email },
     });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const updatedUser = await this.prisma.user.update({
-      where: { id: userId },
-      data: { role },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        preferredLocale: true,
-        isActive: true,
-        emailVerifiedAt: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
-    });
-
-    return updatedUser;
   }
 
-  async toggleUserStatus(userId: string, isActive: boolean) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
+  async create(data: CreateUserInput) {
+    const existingUser = await this.findByEmail(data.email);
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
     }
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id: userId },
-      data: { isActive },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        preferredLocale: true,
-        isActive: true,
-        emailVerifiedAt: true,
-        createdAt: true,
-        lastLoginAt: true,
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    return this.prisma.user.create({
+      data: {
+        ...data,
+        passwordHash: hashedPassword,
       },
     });
-
-    return updatedUser;
   }
 
-  async updateProfile(
-    userId: string,
-    updates: {
-      preferredLocale?: Locale;
-    },
-  ) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
+  async update(id: string, data: UpdateUserInput) {
+    const user = await this.findById(id);
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    if (data.email && data.email !== user.email) {
+      const existingUser = await this.findByEmail(data.email);
+      if (existingUser) {
+        throw new ConflictException('User with this email already exists');
+      }
     }
 
-    const updatedUser = await this.prisma.user.update({
-      where: { id: userId },
-      data: updates,
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        preferredLocale: true,
-        isActive: true,
-        emailVerifiedAt: true,
-        createdAt: true,
-        lastLoginAt: true,
-      },
+    return this.prisma.user.update({
+      where: { id },
+      data,
     });
-
-    return updatedUser;
   }
 
-  async getUserStats() {
+  async delete(id: string) {
+    await this.findById(id);
+    
+    return this.prisma.user.delete({
+      where: { id },
+    });
+  }
+
+  async updateLastLogin(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { lastLoginAt: new Date() },
+    });
+  }
+
+  async verifyEmail(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { emailVerifiedAt: new Date() },
+    });
+  }
+
+  async getUserStats(): Promise<UserStats> {
     const [totalUsers, activeUsers, adminUsers, managerUsers] = await Promise.all([
       this.prisma.user.count(),
       this.prisma.user.count({ where: { isActive: true } }),
-      this.prisma.user.count({ where: { role: UserRole.ADMIN } }),
-      this.prisma.user.count({ where: { role: UserRole.MANAGER } }),
+      this.prisma.user.count({ where: { role: 'ADMIN' } }),
+      this.prisma.user.count({ where: { role: 'MANAGER' } }),
     ]);
 
     return {
       totalUsers,
       activeUsers,
-      inactiveUsers: totalUsers - activeUsers,
       adminUsers,
       managerUsers,
     };
   }
 
-  async searchUsers(query: string, page: number = 1, limit: number = 20) {
-    const skip = (page - 1) * limit;
-
-    const whereClause = {
-      OR: [
-        { email: { contains: query, mode: 'insensitive' as const } },
-      ],
-    };
-
-    const [users, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where: whereClause,
-        skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' },
-        select: {
-          id: true,
-          email: true,
-          role: true,
-          preferredLocale: true,
-          isActive: true,
-          emailVerifiedAt: true,
-          createdAt: true,
-          lastLoginAt: true,
-        },
-      }),
-      this.prisma.user.count({ where: whereClause }),
-    ]);
-
-    return {
-      users,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
-  async getUsersForAssignment() {
-    const users = await this.prisma.user.findMany({
-      where: {
-        isActive: true,
-        emailVerifiedAt: { not: null },
-      },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-      },
-      orderBy: { email: 'asc' },
-    });
-
-    return users;
-  }
-
-  // GraphQL helper methods
-  async findAll() {
-    return this.prisma.user.findMany({
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        isActive: true,
-        emailVerifiedAt: true,
-        lastLoginAt: true,
-        createdAt: true,
-
-        preferredLocale: true,
-
-        // Exclude password
-      },
-    });
-  }
-
-  async findById(id: string) {
-    return this.prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        isActive: true,
-        emailVerifiedAt: true,
-        lastLoginAt: true,
-        createdAt: true,
-
-        preferredLocale: true,
-
-        // Exclude password
-      },
-    });
-  }
-
-  async findActiveUsers() {
-    return this.prisma.user.findMany({
-      where: {
-        isActive: true,
-        emailVerifiedAt: { not: null },
-      },
-      orderBy: { email: 'asc' },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        isActive: true,
-        emailVerifiedAt: true,
-        lastLoginAt: true,
-        createdAt: true,
-
-        preferredLocale: true,
-
-        // Exclude password
-      },
-    });
+  async validatePassword(user: any, password: string): Promise<boolean> {
+    return bcrypt.compare(password, user.passwordHash);
   }
 }

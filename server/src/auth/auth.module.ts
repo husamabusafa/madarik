@@ -1,49 +1,25 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
 import { AuthResolver } from './auth.resolver';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { LocalStrategy } from './strategies/local.strategy';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RolesGuard } from './guards/roles.guard';
-import { EmailModule } from '../email/email.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     PassportModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '7d',
-        },
-      }),
       inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        secret: config.get('JWT_SECRET') || 'your-secret-key',
+        signOptions: { expiresIn: '7d' },
+      }),
     }),
-    // Rate limiting for auth endpoints
-    ThrottlerModule.forRoot([
-      {
-        name: 'auth',
-        ttl: 900, // 15 minutes
-        limit: 5, // 5 attempts per window
-      },
-    ]),
-    EmailModule,
+    UsersModule,
   ],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    AuthResolver,
-    LocalStrategy,
-    JwtStrategy,
-    JwtAuthGuard,
-    RolesGuard,
-  ],
-  exports: [AuthService, JwtAuthGuard, RolesGuard],
+  providers: [AuthService, AuthResolver, JwtStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}
