@@ -12,8 +12,6 @@ export const GET_USERS = gql`
       lastLoginAt
       createdAt
       preferredLocale
-      firstName
-      lastName
     }
   }
 `;
@@ -27,8 +25,18 @@ export const GET_ME = gql`
       isActive
       emailVerifiedAt
       preferredLocale
-      firstName
-      lastName
+    }
+  }
+`;
+
+export const GET_USER_STATS = gql`
+  query GetUserStats {
+    userStats {
+      totalUsers
+      activeUsers
+      inactiveUsers
+      adminUsers
+      managerUsers
     }
   }
 `;

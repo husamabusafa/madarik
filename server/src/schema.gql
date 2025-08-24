@@ -50,14 +50,31 @@ type Mutation {
   inviteUser(input: InviteUserInput!): Invitation!
   resendInvitation(id: ID!): String!
   revokeInvitation(id: ID!): String!
+  updateProfile(input: UpdateProfileInput!): User!
+  updateUserProfile(id: ID!, input: UpdateProfileInput!): User!
+  updateUserRole(id: ID!, input: UpdateUserRoleInput!): User!
+  updateUserStatus(id: ID!, input: UpdateUserStatusInput!): User!
 }
 
 type Query {
   invitations: [Invitation!]!
   me: User!
   user(id: ID!): User
+  userStats: UserStatsType!
   users: [User!]!
   usersForAssignment: [User!]!
+}
+
+input UpdateProfileInput {
+  preferredLocale: Locale
+}
+
+input UpdateUserRoleInput {
+  role: UserRole!
+}
+
+input UpdateUserStatusInput {
+  isActive: Boolean!
 }
 
 type User {
@@ -74,4 +91,12 @@ type User {
 enum UserRole {
   ADMIN
   MANAGER
+}
+
+type UserStatsType {
+  activeUsers: Float!
+  adminUsers: Float!
+  inactiveUsers: Float!
+  managerUsers: Float!
+  totalUsers: Float!
 }

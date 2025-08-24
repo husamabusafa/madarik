@@ -38,3 +38,64 @@ export const ACCEPT_INVITATION = gql`
     }
   }
 `;
+
+// User Management Mutations
+export const UPDATE_USER_ROLE = gql`
+  mutation UpdateUserRole($id: ID!, $input: UpdateUserRoleInput!) {
+    updateUserRole(id: $id, input: $input) {
+      id
+      email
+      role
+      isActive
+      emailVerifiedAt
+      lastLoginAt
+      createdAt
+      preferredLocale
+    }
+  }
+`;
+
+export const UPDATE_USER_STATUS = gql`
+  mutation UpdateUserStatus($id: ID!, $input: UpdateUserStatusInput!) {
+    updateUserStatus(id: $id, input: $input) {
+      id
+      email
+      role
+      isActive
+      emailVerifiedAt
+      lastLoginAt
+      createdAt
+      preferredLocale
+    }
+  }
+`;
+
+export const UPDATE_PROFILE = gql`
+  mutation UpdateProfile($input: UpdateProfileInput!) {
+    updateProfile(input: $input) {
+      id
+      email
+      role
+      isActive
+      emailVerifiedAt
+      lastLoginAt
+      createdAt
+      preferredLocale
+    }
+  }
+`;
+
+export const UPDATE_USER_PROFILE = gql`
+  mutation UpdateUserProfile($id: ID!, $input: UpdateProfileInput!) {
+    updateUserProfile(id: $id, input: $input) {
+      id
+      email
+      role
+      isActive
+      emailVerifiedAt
+      lastLoginAt
+      createdAt
+      preferredLocale
+    }
+  }
+`;

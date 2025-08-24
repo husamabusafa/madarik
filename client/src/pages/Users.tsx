@@ -35,7 +35,7 @@ import InviteUserModal from '../components/users/InviteUserModal';
 import BulkInviteModal from '../components/users/BulkInviteModal';
 import { ToastContainer } from '../components/common/Toast';
 import { useToast } from '../hooks/useToast';
-import { apiService, type UserInvite } from '../lib/api';
+import { graphqlApiService, type UserInvite, type User as GraphQLUser, type UserStats as GraphQLUserStats } from '../lib/graphql-api';
 
 const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -47,58 +47,9 @@ const Users: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toasts, showToast, hideToast } = useToast();
 
-  // Mock data
-  const users = [
-    {
-      id: 1,
-      email: 'admin@madarik.com',
-      role: 'ADMIN',
-      isActive: true,
-      emailVerifiedAt: '2024-01-01T10:00:00Z',
-      lastLoginAt: '2024-01-23T09:30:00Z',
-      createdAt: '2024-01-01T10:00:00Z',
-      preferredLocale: 'EN',
-      listingsCreated: 45,
-      leadsAssigned: 23
-    },
-    {
-      id: 2,
-      email: 'john.smith@madarik.com',
-      role: 'MANAGER',
-      isActive: true,
-      emailVerifiedAt: '2024-01-05T14:20:00Z',
-      lastLoginAt: '2024-01-22T16:45:00Z',
-      createdAt: '2024-01-05T14:20:00Z',
-      preferredLocale: 'EN',
-      listingsCreated: 23,
-      leadsAssigned: 45
-    },
-    {
-      id: 3,
-      email: 'jane.doe@madarik.com',
-      role: 'MANAGER',
-      isActive: true,
-      emailVerifiedAt: '2024-01-10T11:15:00Z',
-      lastLoginAt: '2024-01-23T08:20:00Z',
-      createdAt: '2024-01-10T11:15:00Z',
-      preferredLocale: 'AR',
-      listingsCreated: 18,
-      leadsAssigned: 38
-    },
-    {
-      id: 4,
-      email: 'pending@madarik.com',
-      role: 'MANAGER',
-      isActive: false,
-      emailVerifiedAt: null,
-      lastLoginAt: null,
-      createdAt: '2024-01-20T15:30:00Z',
-      preferredLocale: 'EN',
-      listingsCreated: 0,
-      leadsAssigned: 0
-    }
-  ];
-
+  // State management for real data
+  const [users, setUsers] = useState<GraphQLUser[]>([]);
+  const [userStats, setUserStats] = useState<GraphQLUserStats | null>(null);
   const [invites, setInvites] = useState<UserInvite[]>([]);
 
   // Fetch data on component mount
@@ -109,14 +60,15 @@ const Users: React.FC = () => {
   const fetchData = async () => {
     setIsLoading(true);
     try {
-      const [usersData, invitesData] = await Promise.all([
-        apiService.getUsers(),
-        apiService.getInvites(),
+      const [usersData, invitesData, statsData] = await Promise.all([
+        graphqlApiService.getUsers(),
+        graphqlApiService.getInvites(),
+        graphqlApiService.getUserStats(),
       ]);
       
-      // Update state with real data
-      // setUsers(usersData); // Uncomment when you have real users data
+      setUsers(usersData);
       setInvites(invitesData);
+      setUserStats(statsData);
     } catch (error) {
       console.error('Failed to fetch data:', error);
       showToast({
@@ -130,22 +82,19 @@ const Users: React.FC = () => {
   };
 
   // Calculate dynamic stats
-  const totalUsers = users.length;
-  const activeUsers = users.filter(user => user.isActive && user.emailVerifiedAt).length;
   const pendingInvites = invites.filter(invite => invite.status === 'PENDING').length;
-  const adminUsers = users.filter(user => user.role === 'ADMIN').length;
 
   const stats = [
     { 
       title: 'Total Users', 
-      value: totalUsers.toString(), 
+      value: userStats?.totalUsers?.toString() || '0', 
       icon: User, 
       change: { value: 2, type: 'increase' as const }, 
       color: 'blue' as const 
     },
     { 
       title: 'Active Users', 
-      value: activeUsers.toString(), 
+      value: userStats?.activeUsers?.toString() || '0', 
       icon: UserCheck, 
       change: { value: 1, type: 'increase' as const }, 
       color: 'green' as const 
@@ -159,7 +108,7 @@ const Users: React.FC = () => {
     },
     { 
       title: 'Admins', 
-      value: adminUsers.toString(), 
+      value: userStats?.adminUsers?.toString() || '0', 
       icon: Shield, 
       change: { value: 0, type: 'increase' as const }, 
       color: 'purple' as const 
@@ -221,7 +170,7 @@ const Users: React.FC = () => {
           <div>
             <div className="font-medium text-gray-900">{value}</div>
             <div className="text-sm text-gray-500">
-              ID: {row.id} • {row.preferredLocale}
+              ID: {row.id.slice(0, 8)}... • {row.preferredLocale}
             </div>
           </div>
         </div>
@@ -257,13 +206,14 @@ const Users: React.FC = () => {
       )
     },
     {
-      key: 'listingsCreated',
-      label: 'Activity',
-      render: (listings: number, row: any) => (
-        <div className="text-sm">
-          <div className="text-gray-900">{listings} listings</div>
-          <div className="text-gray-500">{row.leadsAssigned} leads</div>
-        </div>
+      key: 'preferredLocale',
+      label: 'Language',
+      render: (value: string) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+          value === 'AR' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700'
+        }`}>
+          {value === 'AR' ? 'العربية' : 'English'}
+        </span>
       )
     },
     {
@@ -380,9 +330,10 @@ const Users: React.FC = () => {
   const handleSendInvite = async (inviteData: { email: string; role: 'ADMIN' | 'MANAGER'; message: string }) => {
     setIsInviting(true);
     try {
-      const response = await apiService.inviteUser({
+      await graphqlApiService.inviteUser({
         email: inviteData.email,
         role: inviteData.role,
+        message: inviteData.message,
       });
       
       showToast({
@@ -391,7 +342,7 @@ const Users: React.FC = () => {
         message: `Invitation sent successfully to ${inviteData.email}!`,
       });
       
-      // Refresh the invites list
+      // Refresh the data
       await fetchData();
       
     } catch (error) {
@@ -413,7 +364,7 @@ const Users: React.FC = () => {
       // Send invitations one by one
       const results = await Promise.allSettled(
         emails.map(email => 
-          apiService.inviteUser({
+          graphqlApiService.inviteUser({
             email,
             role: 'MANAGER', // Bulk invites are always managers
           })
@@ -439,7 +390,7 @@ const Users: React.FC = () => {
         });
       }
       
-      // Refresh the invites list
+      // Refresh the data
       await fetchData();
       
     } catch (error) {
@@ -457,13 +408,13 @@ const Users: React.FC = () => {
 
   const handleResendInvite = async (inviteId: string) => {
     try {
-      await apiService.resendInvite(inviteId);
+      await graphqlApiService.resendInvite(inviteId);
       showToast({
         type: 'success',
         title: 'Invitation Resent',
         message: 'Invitation resent successfully!',
       });
-      // Refresh the invites list
+      // Refresh the data
       await fetchData();
     } catch (error) {
       console.error('Failed to resend invite:', error);
@@ -479,13 +430,13 @@ const Users: React.FC = () => {
     if (!confirm('Are you sure you want to revoke this invitation?')) return;
     
     try {
-      await apiService.revokeInvite(inviteId);
+      await graphqlApiService.revokeInvite(inviteId);
       showToast({
         type: 'success',
         title: 'Invitation Revoked',
         message: 'Invitation revoked successfully!',
       });
-      // Refresh the invites list
+      // Refresh the data
       await fetchData();
     } catch (error) {
       console.error('Failed to revoke invite:', error);
