@@ -25,6 +25,7 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Table from '../components/common/Table';
 import StatCard from '../components/common/StatCard';
+import Tooltip from '../components/common/Tooltip';
 import InviteUserModal from '../components/users/InviteUserModal';
 import BulkInviteModal from '../components/users/BulkInviteModal';
 import Modal from '../components/common/Modal';
@@ -42,21 +43,24 @@ const Users: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toasts, showToast, hideToast } = useToast();
 
+  // Version key to force Table re-mount (and re-query internal state) after any mutation
+  const [dataVersion, setDataVersion] = useState(0);
+
   // State management for real data
   const [users, setUsers] = useState<GraphQLUser[]>([]);
   const [userStats, setUserStats] = useState<GraphQLUserStats | null>(null);
   const [invites, setInvites] = useState<UserInvite[]>([]);
 
   // Data fetcher
-  const fetchData = React.useCallback(async () => {
-    setIsLoading(true);
+  const fetchData = React.useCallback(async (opts: { silent?: boolean } = {}) => {
+    const { silent = false } = opts;
+    if (!silent) setIsLoading(true);
     try {
       const [usersData, invitesData, statsData] = await Promise.all([
         graphqlApiService.getUsers(),
         graphqlApiService.getInvites(),
         graphqlApiService.getUserStats(),
       ]);
-      
       setUsers(usersData);
       setInvites(invitesData);
       setUserStats(statsData);
@@ -68,9 +72,27 @@ const Users: React.FC = () => {
         message: 'Failed to load users and invitations data.',
       });
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
+      // bump version so tables remount and re-evaluate any internal memoized state
+      setDataVersion(v => v + 1);
     }
   }, [showToast]);
+
+  // Helper: run a mutation fn then do a guaranteed refetch
+  const runAndRefetch = React.useCallback(async <T,>(fn: () => Promise<T>, {
+    optimistic,
+  }: { optimistic?: () => void } = {}) => {
+    try {
+      if (optimistic) optimistic();
+      const result = await fn();
+      await fetchData({ silent: true }); // refetch without blocking the whole page spinner
+      return result;
+    } catch (error) {
+      // If optimistic update happened and server failed, do a full refetch to recover
+      await fetchData({ silent: false });
+      throw error;
+    }
+  }, [fetchData]);
 
   // Action handlers
   const handleUpdateUserRole = async (userId: string, currentRole: 'ADMIN' | 'MANAGER') => {
@@ -83,9 +105,13 @@ const Users: React.FC = () => {
       return;
     }
     try {
-      await graphqlApiService.updateUserRole(userId, nextRole as 'ADMIN' | 'MANAGER');
+      await runAndRefetch(
+        () => graphqlApiService.updateUserRole(userId, nextRole as 'ADMIN' | 'MANAGER'),
+        {
+          optimistic: () => setUsers(prev => prev.map(u => (u.id === userId ? { ...u, role: nextRole as 'ADMIN' | 'MANAGER' } : u)))
+        }
+      );
       showToast({ type: 'success', title: 'Role Updated', message: `User role updated to ${nextRole}.` });
-      await fetchData();
     } catch (error) {
       console.error('Failed to update role:', error);
       showToast({ type: 'error', title: 'Update Failed', message: error instanceof Error ? error.message : 'Could not update role.' });
@@ -96,9 +122,13 @@ const Users: React.FC = () => {
 
   const handleToggleUserStatus = async (userId: string, enable: boolean) => {
     try {
-      await graphqlApiService.updateUserStatus(userId, enable);
+      await runAndRefetch(
+        () => graphqlApiService.updateUserStatus(userId, enable),
+        {
+          optimistic: () => setUsers(prev => prev.map(u => (u.id === userId ? { ...u, isActive: enable } : u)))
+        }
+      );
       showToast({ type: 'success', title: enable ? 'User Activated' : 'User Deactivated', message: enable ? 'User has been reactivated.' : 'User has been deactivated.' });
-      await fetchData();
     } catch (error) {
       console.error('Failed to update status:', error);
       showToast({ type: 'error', title: 'Status Update Failed', message: error instanceof Error ? error.message : 'Could not update status.' });
@@ -106,7 +136,6 @@ const Users: React.FC = () => {
   };
 
   const handleResetPassword = (email: string) => {
-    // No API available yet; provide helpful feedback
     showToast({ type: 'info', title: 'Reset Password', message: `Password reset flow for ${email} is not implemented yet.` });
   };
 
@@ -294,24 +323,34 @@ const Users: React.FC = () => {
       label: 'Actions',
       render: (_: unknown, row: GraphQLUser) => (
         <div className="flex items-center space-x-1">
-          <Button variant="ghost" size="sm" title="Edit User" onClick={() => handleUpdateUserRole(row.id, row.role)}>
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" title="Reset Password" onClick={() => handleResetPassword(row.email)}>
-            <Key className="h-4 w-4" />
-          </Button>
+          <Tooltip content="Edit Role">
+            <Button variant="ghost" size="sm" onClick={() => handleUpdateUserRole(row.id, row.role)}>
+              <Edit className="h-4 w-4" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Reset Password">
+            <Button variant="ghost" size="sm" onClick={() => handleResetPassword(row.email)}>
+              <Key className="h-4 w-4" />
+            </Button>
+          </Tooltip>
           {row.isActive ? (
-            <Button variant="ghost" size="sm" title="Deactivate" className="text-red-400" onClick={() => handleToggleUserStatus(row.id, false)}>
-              <Ban className="h-4 w-4" />
-            </Button>
+            <Tooltip content="Deactivate User">
+              <Button variant="ghost" size="sm" className="text-red-400" onClick={() => handleToggleUserStatus(row.id, false)}>
+                <Ban className="h-4 w-4" />
+              </Button>
+            </Tooltip>
           ) : (
-            <Button variant="ghost" size="sm" title="Reactivate" className="text-green-400" onClick={() => handleToggleUserStatus(row.id, true)}>
-              <RotateCcw className="h-4 w-4" />
-            </Button>
+            <Tooltip content="Reactivate User">
+              <Button variant="ghost" size="sm" className="text-green-400" onClick={() => handleToggleUserStatus(row.id, true)}>
+                <RotateCcw className="h-4 w-4" />
+              </Button>
+            </Tooltip>
           )}
-          <Button variant="ghost" size="sm" title="More Actions" onClick={() => handleMoreActions(row)}>
-            <MoreVertical className="h-4 w-4" />
-          </Button>
+          <Tooltip content="More Actions">
+            <Button variant="ghost" size="sm" onClick={() => handleMoreActions(row)}>
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </Tooltip>
         </div>
       )
     }
@@ -367,27 +406,31 @@ const Users: React.FC = () => {
         <div className="flex items-center space-x-2">
           {row.status === 'PENDING' && (
             <>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                title="Resend Invite"
-                onClick={() => handleResendInvite(row.id)}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                title="Revoke Invite"
-                onClick={() => handleRevokeInvite(row.id)}
-              >
-                <XCircle className="h-4 w-4" />
-              </Button>
+              <Tooltip content="Resend Invite">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => handleResendInvite(row.id)}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </Tooltip>
+              <Tooltip content="Revoke Invite">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => handleRevokeInvite(row.id)}
+                >
+                  <XCircle className="h-4 w-4" />
+                </Button>
+              </Tooltip>
             </>
           )}
-          <Button variant="ghost" size="sm" title="Delete" onClick={() => handleDeleteInvite(row.id)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          <Tooltip content="Delete">
+            <Button variant="ghost" size="sm" onClick={() => handleDeleteInvite(row.id)}>
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </Tooltip>
         </div>
       )
     }
@@ -396,29 +439,27 @@ const Users: React.FC = () => {
   const handleSendInvite = async (inviteData: { email: string; role: 'ADMIN' | 'MANAGER'; message: string }) => {
     setIsInviting(true);
     try {
-      await graphqlApiService.inviteUser({
-        email: inviteData.email,
-        role: inviteData.role,
-        message: inviteData.message,
-      });
-      
-      showToast({
-        type: 'success',
-        title: 'Invitation Sent',
-        message: `Invitation sent successfully to ${inviteData.email}!`,
-      });
-      
-      // Refresh the data
-      await fetchData();
-      
+      await runAndRefetch(
+        () => graphqlApiService.inviteUser({ email: inviteData.email, role: inviteData.role, message: inviteData.message }),
+        {
+          optimistic: () => setInvites(prev => [
+            {
+              id: `temp-${Date.now()}`,
+              email: inviteData.email,
+              invitedRole: inviteData.role,
+              status: 'PENDING',
+              createdAt: new Date().toISOString(),
+              expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7).toISOString(),
+            } as unknown as UserInvite,
+            ...prev,
+          ])
+        }
+      );
+      showToast({ type: 'success', title: 'Invitation Sent', message: `Invitation sent successfully to ${inviteData.email}!` });
     } catch (error) {
       console.error('Failed to send invite:', error);
-      showToast({
-        type: 'error',
-        title: 'Invitation Failed',
-        message: error instanceof Error ? error.message : 'Failed to send invitation. Please try again.',
-      });
-      throw error; // Re-throw to prevent modal from closing
+      showToast({ type: 'error', title: 'Invitation Failed', message: error instanceof Error ? error.message : 'Failed to send invitation. Please try again.' });
+      throw error; // keep modal open
     } finally {
       setIsInviting(false);
     }
@@ -427,46 +468,26 @@ const Users: React.FC = () => {
   const handleBulkInvite = async (emails: string[]) => {
     setIsInviting(true);
     try {
-      // Send invitations one by one
       const results = await Promise.allSettled(
-        emails.map(email => 
-          graphqlApiService.inviteUser({
-            email,
-            role: 'MANAGER', // Bulk invites are always managers
-          })
-        )
+        emails.map(email => graphqlApiService.inviteUser({ email, role: 'MANAGER' }))
       );
-      
-      const successful = results.filter(result => result.status === 'fulfilled').length;
-      const failed = results.filter(result => result.status === 'rejected').length;
-      
+
+      const successful = results.filter(r => r.status === 'fulfilled').length;
+      const failed = results.filter(r => r.status === 'rejected').length;
+
       if (successful > 0) {
-        showToast({
-          type: 'success',
-          title: 'Bulk Invitations Sent',
-          message: `${successful} invitation${successful !== 1 ? 's' : ''} sent successfully!`,
-        });
+        showToast({ type: 'success', title: 'Bulk Invitations Sent', message: `${successful} invitation${successful !== 1 ? 's' : ''} sent successfully!` });
       }
-      
       if (failed > 0) {
-        showToast({
-          type: 'warning',
-          title: 'Some Invitations Failed',
-          message: `${failed} invitation${failed !== 1 ? 's' : ''} failed to send.`,
-        });
+        showToast({ type: 'warning', title: 'Some Invitations Failed', message: `${failed} invitation${failed !== 1 ? 's' : ''} failed to send.` });
       }
-      
-      // Refresh the data
-      await fetchData();
-      
+
+      // Always refetch after a bulk op to converge UI with server
+      await fetchData({ silent: false });
     } catch (error) {
       console.error('Failed to send bulk invites:', error);
-      showToast({
-        type: 'error',
-        title: 'Bulk Invitation Failed',
-        message: error instanceof Error ? error.message : 'Failed to send invitations. Please try again.',
-      });
-      throw error; // Re-throw to prevent modal from closing
+      showToast({ type: 'error', title: 'Bulk Invitation Failed', message: error instanceof Error ? error.message : 'Failed to send invitations. Please try again.' });
+      throw error;
     } finally {
       setIsInviting(false);
     }
@@ -474,21 +495,14 @@ const Users: React.FC = () => {
 
   const handleResendInvite = async (inviteId: string) => {
     try {
-      await graphqlApiService.resendInvite(inviteId);
-      showToast({
-        type: 'success',
-        title: 'Invitation Resent',
-        message: 'Invitation resent successfully!',
-      });
-      // Refresh the data
-      await fetchData();
+      await runAndRefetch(
+        () => graphqlApiService.resendInvite(inviteId),
+        { optimistic: undefined }
+      );
+      showToast({ type: 'success', title: 'Invitation Resent', message: 'Invitation resent successfully!' });
     } catch (error) {
       console.error('Failed to resend invite:', error);
-      showToast({
-        type: 'error',
-        title: 'Resend Failed',
-        message: error instanceof Error ? error.message : 'Failed to resend invitation.',
-      });
+      showToast({ type: 'error', title: 'Resend Failed', message: error instanceof Error ? error.message : 'Failed to resend invitation.' });
     }
   };
 
@@ -518,13 +532,17 @@ const Users: React.FC = () => {
     setConfirmLoading(true);
     try {
       if (confirmAction === 'delete') {
-        await graphqlApiService.deleteInvite(targetInviteId);
-        // silent success for delete
+        await runAndRefetch(
+          () => graphqlApiService.deleteInvite(targetInviteId),
+          { optimistic: () => setInvites(prev => prev.filter(i => i.id !== targetInviteId)) }
+        );
       } else {
-        await graphqlApiService.revokeInvite(targetInviteId);
+        await runAndRefetch(
+          () => graphqlApiService.revokeInvite(targetInviteId),
+          { optimistic: () => setInvites(prev => prev.map(i => (i.id === targetInviteId ? { ...i, status: 'REVOKED' } : i))) }
+        );
         showToast({ type: 'success', title: 'Invitation Revoked', message: 'Invitation revoked successfully!' });
       }
-      await fetchData();
       setConfirmOpen(false);
     } catch (error) {
       console.error('Failed to update invite:', error);
@@ -536,7 +554,10 @@ const Users: React.FC = () => {
 
   const handleRevokeInvite = (inviteId: string) => openConfirm('revoke', inviteId);
 
-  // Filter users based on search and filters
+  // Unified Refresh handler (same as pressing Refresh button)
+  const refresh = React.useCallback(() => fetchData({ silent: false }), [fetchData]);
+
+  // Filter users based on search and filters, then order by createdAt desc
   const filteredUsers = users.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role.toLowerCase() === roleFilter;
@@ -547,6 +568,20 @@ const Users: React.FC = () => {
     
     return matchesSearch && matchesRole && matchesStatus;
   });
+
+  const orderedUsers = React.useMemo(() => {
+    return [...filteredUsers].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [filteredUsers]);
+
+  // Order invites: PENDING first, then by createdAt desc
+  const orderedInvites = React.useMemo(() => {
+    const statusRank = (s: string) => (s === 'PENDING' ? 0 : s === 'ACCEPTED' ? 1 : s === 'REVOKED' ? 2 : 3);
+    return [...invites].sort((a, b) => {
+      const sr = statusRank(a.status) - statusRank(b.status);
+      if (sr !== 0) return sr;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [invites]);
 
   return (
     <div className="space-y-8">
@@ -614,14 +649,13 @@ const Users: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={fetchData}
+              onClick={refresh}
               disabled={isLoading}
             >
               <RotateCcw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
           </div>
-          
           {/* Filters */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
@@ -659,7 +693,8 @@ const Users: React.FC = () => {
           </div>
 
           <Table
-            data={filteredUsers}
+            key={`users-${dataVersion}`}
+            data={orderedUsers}
             columns={userColumns}
             emptyMessage="No users found matching your filters"
           />
@@ -680,7 +715,7 @@ const Users: React.FC = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={fetchData}
+                onClick={refresh}
                 disabled={isLoading}
               >
                 <RotateCcw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
@@ -694,7 +729,8 @@ const Users: React.FC = () => {
           </div>
 
           <Table
-            data={invites}
+            key={`invites-${dataVersion}`}
+            data={orderedInvites}
             columns={inviteColumns}
             emptyMessage={isLoading ? "Loading invitations..." : "No pending invitations"}
             loading={isLoading}
