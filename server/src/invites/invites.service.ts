@@ -1,15 +1,19 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../database/prisma.service';
 import { UsersService } from '../users/users.service';
 import { CreateInviteInput, AcceptInviteInput } from './dto/invite.dto';
 import { InviteStatus } from '../common/enums';
 import * as crypto from 'crypto';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class InvitesService {
   constructor(
     private prisma: PrismaService,
     private usersService: UsersService,
+    private mail: MailService,
+    private config: ConfigService,
   ) {}
 
   async findAll() {
@@ -78,7 +82,7 @@ export class InvitesService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiry
 
-    return this.prisma.userInvite.create({
+    const invite = await this.prisma.userInvite.create({
       data: {
         email: data.email,
         invitedRole: data.role || 'MANAGER',
@@ -91,6 +95,30 @@ export class InvitesService {
         acceptedUser: true,
       },
     });
+
+    // Send invite email
+    const clientUrl = this.config.get<string>('CLIENT_URL') || 'http://localhost:5100';
+    const acceptUrl = `${clientUrl}/auth/accept-invite?token=${encodeURIComponent(token)}`;
+    const html = `
+      <div>
+        <p>You have been invited to join Madarik as ${invite.invitedRole}.</p>
+        <p>Click the link below to accept the invitation and set your password:</p>
+        <p><a href="${acceptUrl}">Accept Invitation</a></p>
+        <p>This link expires on ${expiresAt.toUTCString()}.</p>
+      </div>
+    `;
+    try {
+      await this.mail.sendEmail({
+        to: data.email,
+        subject: 'Your invitation to Madarik',
+        html,
+      });
+    } catch (err) {
+      // Do not block invite creation on email errors
+      console.warn('Invite email send failed (continuing):', err);
+    }
+
+    return invite;
   }
 
   async acceptInvite(data: AcceptInviteInput) {
@@ -141,7 +169,7 @@ export class InvitesService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
-    return this.prisma.userInvite.update({
+    const updated = await this.prisma.userInvite.update({
       where: { id },
       data: {
         token,
@@ -152,6 +180,30 @@ export class InvitesService {
         acceptedUser: true,
       },
     });
+
+    // Send invite email again with new token
+    const clientUrl = this.config.get<string>('CLIENT_URL') || 'http://localhost:5100';
+    const acceptUrl = `${clientUrl}/auth/accept-invite?token=${encodeURIComponent(token)}`;
+    const html = `
+      <div>
+        <p>This is a reminder to join Madarik.</p>
+        <p>Click the link below to accept the invitation and set your password:</p>
+        <p><a href="${acceptUrl}">Accept Invitation</a></p>
+        <p>This link expires on ${expiresAt.toUTCString()}.</p>
+      </div>
+    `;
+    try {
+      await this.mail.sendEmail({
+        to: invite.email,
+        subject: 'Invitation reminder to Madarik',
+        html,
+      });
+    } catch (err) {
+      // Do not block invite resend on email errors
+      console.warn('Resend invite email failed (continuing):', err);
+    }
+
+    return updated;
   }
 
   async revokeInvite(id: string) {

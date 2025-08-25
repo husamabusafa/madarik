@@ -2,13 +2,14 @@ import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { InvitesService } from './invites.service';
 import { UserInvite, CreateInviteInput, AcceptInviteInput } from './dto/invite.dto';
-import { User } from '../users/dto/user.dto';
+import { User, AuthPayload } from '../users/dto/user.dto';
 import { CurrentUser } from '../common/decorators/auth.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { AuthService } from '../auth/auth.service';
 
 @Resolver(() => UserInvite)
 export class InvitesResolver {
-  constructor(private invitesService: InvitesService) {}
+  constructor(private invitesService: InvitesService, private authService: AuthService) {}
 
   @Query(() => [UserInvite])
   @UseGuards(JwtAuthGuard)
@@ -36,9 +37,10 @@ export class InvitesResolver {
     return this.invitesService.create(input, user.id);
   }
 
-  @Mutation(() => User)
-  async acceptInvite(@Args('input') input: AcceptInviteInput): Promise<User> {
-    return this.invitesService.acceptInvite(input);
+  @Mutation(() => AuthPayload)
+  async acceptInvite(@Args('input') input: AcceptInviteInput): Promise<AuthPayload> {
+    const user = await this.invitesService.acceptInvite(input);
+    return this.authService.signForUser(user);
   }
 
   @Mutation(() => UserInvite)

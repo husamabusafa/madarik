@@ -1,6 +1,7 @@
 import React from 'react';
 import { clsx } from 'clsx';
 import { motion } from 'framer-motion';
+import { useI18n } from '../../contexts/I18nContext';
 
 interface Column<T> {
   key: keyof T | string;
@@ -28,11 +29,12 @@ export default function Table<T extends Record<string, any>>({
   className,
   onRowClick,
 }: TableProps<T>) {
+  const { isRTL } = useI18n();
   if (loading) {
     return (
-      <div className={clsx('rounded-xl border border-gray-200 bg-white shadow-sm', className)}>
+      <div className={clsx('rounded-xl border border-slate-800 bg-slate-900 text-slate-100 shadow-sm', className)}>
         <div className="p-8 text-center">
-          <div className="inline-flex items-center gap-2 text-gray-500">
+          <div className="inline-flex items-center gap-2 text-slate-400">
             <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
               <circle
                 className="opacity-25"
@@ -58,30 +60,33 @@ export default function Table<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div className={clsx('rounded-xl border border-gray-200 bg-white shadow-sm', className)}>
-        <div className="p-8 text-center text-gray-500">{emptyMessage}</div>
+      <div className={clsx('rounded-xl border border-slate-800 bg-slate-900 text-slate-100 shadow-sm', className)}>
+        <div className="p-8 text-center text-slate-400">{emptyMessage}</div>
       </div>
     );
   }
 
   return (
     <motion.div
-      className={clsx('overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm', className)}
+      className={clsx('overflow-hidden rounded-xl border border-slate-800 bg-slate-900 text-slate-100 shadow-sm', className)}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-slate-800/60">
             <tr>
-              {columns.map((column, index) => (
+              {columns.map((column) => (
                 <th
                   key={String(column.key)}
                   className={clsx(
-                    'px-6 py-4 text-left text-xs font-medium uppercase tracking-wider text-gray-500',
+                    'px-6 py-4 text-xs font-medium uppercase tracking-wider text-slate-400',
+                    !column.align && (isRTL ? 'text-right' : 'text-left'),
                     column.align === 'center' && 'text-center',
-                    column.align === 'right' && 'text-right',
+                    column.align === 'right' && (isRTL ? 'text-left' : 'text-right'),
+                    column.align === 'left' && (isRTL ? 'text-right' : 'text-left'),
                     column.width && `w-${column.width}`
                   )}
                 >
@@ -90,31 +95,34 @@ export default function Table<T extends Record<string, any>>({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
+          <tbody className="divide-y divide-slate-800 bg-transparent">
             {data.map((row, rowIndex) => (
               <motion.tr
                 key={rowIndex}
                 className={clsx(
                   'transition-colors duration-200',
-                  onRowClick && 'cursor-pointer hover:bg-gray-50'
+                  onRowClick && 'cursor-pointer hover:bg-white/5'
                 )}
                 onClick={() => onRowClick?.(row, rowIndex)}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2, delay: rowIndex * 0.05 }}
               >
-                {columns.map((column, colIndex) => {
-                  const value = column.key.includes('.') 
-                    ? column.key.split('.').reduce((obj, key) => obj?.[key], row)
-                    : row[column.key];
+                {columns.map((column) => {
+                  const keyPath = String(column.key);
+                  const value = keyPath.includes('.')
+                    ? keyPath.split('.').reduce((obj: any, key: string) => obj?.[key], row)
+                    : row[keyPath as keyof typeof row];
                   
                   return (
                     <td
                       key={String(column.key)}
                       className={clsx(
-                        'px-6 py-4 whitespace-nowrap text-sm text-gray-900',
+                        'px-6 py-4 whitespace-nowrap text-sm text-slate-100',
+                        !column.align && (isRTL ? 'text-right' : 'text-left'),
                         column.align === 'center' && 'text-center',
-                        column.align === 'right' && 'text-right'
+                        column.align === 'right' && (isRTL ? 'text-left' : 'text-right'),
+                        column.align === 'left' && (isRTL ? 'text-right' : 'text-left')
                       )}
                     >
                       {column.render ? column.render(value, row, rowIndex) : value}

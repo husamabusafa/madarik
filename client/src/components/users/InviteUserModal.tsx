@@ -82,14 +82,14 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
       label: 'Manager',
       description: 'Can manage properties, leads, and view analytics',
       icon: User,
-      color: 'text-blue-600 bg-blue-100'
+      color: 'text-blue-400 bg-blue-500/10'
     },
     {
       value: 'ADMIN' as const,
       label: 'Administrator',
       description: 'Full access to all features and user management',
       icon: Shield,
-      color: 'text-purple-600 bg-purple-100'
+      color: 'text-purple-400 bg-purple-500/10'
     }
   ];
 
@@ -105,7 +105,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         <div className="space-y-5">
           {/* Email Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               <Mail className="inline h-4 w-4 mr-1" />
               Email Address
             </label>
@@ -122,7 +122,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
 
           {/* Role Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-slate-300 mb-3">
               <Key className="inline h-4 w-4 mr-1" />
               User Role
             </label>
@@ -138,8 +138,8 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
                     whileTap={{ scale: 0.98 }}
                     className={`relative cursor-pointer rounded-lg border-2 p-4 transition-all ${
                       isSelected
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        ? 'border-blue-500/60 bg-blue-500/10'
+                        : 'border-slate-800 hover:border-slate-700 hover:bg-white/5'
                     } ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
                     onClick={() => !isLoading && handleInputChange('role', option.value)}
                   >
@@ -149,14 +149,14 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-medium text-gray-900">
+                          <span className="text-sm font-medium text-slate-100">
                             {option.label}
                           </span>
                           {isSelected && (
-                            <Check className="h-4 w-4 text-blue-600" />
+                            <Check className="h-4 w-4 text-blue-400" />
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-slate-400 mt-1">
                           {option.description}
                         </p>
                       </div>
@@ -169,7 +169,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
 
           {/* Personal Message */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               <MessageSquare className="inline h-4 w-4 mr-1" />
               Personal Message (Optional)
             </label>
@@ -178,40 +178,40 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
               value={form.message}
               onChange={(e) => handleInputChange('message', e.target.value)}
               disabled={isLoading}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed resize-none"
+              className="w-full px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 placeholder-slate-500 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed resize-none"
               placeholder="Add a personal welcome message to the invitation..."
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-slate-400">
               This message will be included in the invitation email
             </p>
           </div>
         </div>
 
         {/* Info Panel */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-slate-800/60 border border-slate-700 rounded-lg p-4">
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0">
-              <AlertCircle className="h-5 w-5 text-blue-600" />
+              <AlertCircle className="h-5 w-5 text-blue-400" />
             </div>
             <div className="flex-1">
-              <h4 className="text-sm font-medium text-blue-900 mb-2">
+              <h4 className="text-sm font-medium text-slate-100 mb-2">
                 What happens next?
               </h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <ul className="text-sm text-slate-300 space-y-1">
                 <li className="flex items-center space-x-2">
-                  <Clock className="h-3 w-3" />
+                  <Clock className="h-3 w-3 text-slate-400" />
                   <span>User receives email invitation instantly</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <Key className="h-3 w-3" />
+                  <Key className="h-3 w-3 text-slate-400" />
                   <span>Secure link to set up their account</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <Shield className="h-3 w-3" />
+                  <Shield className="h-3 w-3 text-slate-400" />
                   <span>Access to {form.role.toLowerCase()} dashboard features</span>
                 </li>
                 <li className="flex items-center space-x-2">
-                  <AlertCircle className="h-3 w-3" />
+                  <AlertCircle className="h-3 w-3 text-slate-400" />
                   <span>Invitation expires in 7 days</span>
                 </li>
               </ul>
@@ -220,7 +220,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+        <div className="flex justify-end space-x-3 pt-4 border-t border-slate-800">
           <Button 
             variant="outline" 
             onClick={onClose}

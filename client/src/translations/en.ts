@@ -3,6 +3,7 @@ export const enTranslations = {
   'app.title': 'Madarik Real Estate - Property Management Platform',
   'app.name': 'Madarik',
   'app.companyName': 'Madarik Real Estate',
+  'app.description': 'Advanced real estate management platform for professionals',
 
   // Navigation
   'nav.dashboard': 'Dashboard',
@@ -42,6 +43,7 @@ export const enTranslations = {
   'auth.verifyEmailSubtitle': 'We have sent a verification link to your email',
   'auth.resendVerification': 'Resend verification email',
   'auth.noAccount': "Don't have an account?",
+  'auth.hasAccount': 'Already have an account?',
 
   // Common actions
   'common.loading': 'Loading...',
@@ -113,6 +115,9 @@ export const enTranslations = {
   'dashboard.responseRateDesc': 'improvement',
   'dashboard.avgDealSize': 'Avg Deal Size',
   'dashboard.stableTrend': 'Stable trend',
+  'dashboard.days': 'days',
+  'dashboard.performanceChart': 'Performance chart will be displayed here',
+  'dashboard.analyticsIntegration': 'Integration with analytics service pending',
 
   // Properties
   'properties.title': 'Properties',
@@ -276,7 +281,6 @@ export const enTranslations = {
   'content.lastModified': 'Last Modified',
   'content.actions': 'Actions',
   'content.totalPages': 'Total Pages',
-  'content.published': 'Published',
   'content.totalViews': 'Total Views',
   'content.thisMonth': 'This Month',
   'content.quickTemplates': 'Quick Templates',

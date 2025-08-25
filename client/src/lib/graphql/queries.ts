@@ -34,7 +34,6 @@ export const GET_USER_STATS = gql`
     userStats {
       totalUsers
       activeUsers
-      inactiveUsers
       adminUsers
       managerUsers
     }
@@ -53,8 +52,8 @@ export const GET_USERS_FOR_ASSIGNMENT = gql`
 
 // Invitation Queries
 export const GET_INVITATIONS = gql`
-  query GetInvitations {
-    invitations {
+  query GetInvites {
+    invites {
       id
       email
       invitedRole
@@ -74,3 +73,4 @@ export const GET_INVITATIONS = gql`
     }
   }
 `;
+

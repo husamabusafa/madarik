@@ -2,21 +2,21 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import { Link } from 'react-router-dom';
-import { User, LogOut, Building } from 'lucide-react';
+import { User, LogOut } from 'lucide-react';
 
 export default function AppHeader() {
   const { user, logout, isAuthenticated, isCompanyOwner, isCompanyMember } = useAuth();
   const { t } = useI18n();
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-slate-900/80 backdrop-blur border-b border-slate-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-16 text-slate-100">
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2 rtl:space-x-reverse">
-              <Building className="h-8 w-8 text-blue-600" />
-              <h1 className="text-2xl font-bold text-blue-600">
+              <img src="/logo.svg" alt="Madarik" className="h-8 w-8" />
+              <h1 className="text-2xl font-bold text-blue-400">
                 {t('app.title').split(' - ')[0]}
               </h1>
             </Link>
@@ -30,7 +30,7 @@ export default function AppHeader() {
                 {(isCompanyOwner || isCompanyMember) && (
                   <Link
                     to="/dashboard"
-                    className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                    className="text-slate-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium"
                   >
                     Dashboard
                   </Link>
@@ -38,14 +38,14 @@ export default function AppHeader() {
 
                 {/* User menu */}
                 <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                  <div className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-gray-700">
+                  <div className="flex items-center space-x-2 rtl:space-x-reverse text-sm text-slate-300">
                     <User className="h-4 w-4" />
                     <span>{user?.email}</span>
                   </div>
                   
                   <button
                     onClick={logout}
-                    className="text-gray-500 hover:text-red-600 p-2 rounded-md"
+                    className="text-slate-400 hover:text-red-300 hover:bg-red-500/10 p-2 rounded-md"
                     title={t('auth.logout')}
                   >
                     <LogOut className="h-4 w-4" />
@@ -56,13 +56,13 @@ export default function AppHeader() {
               <>
                 <Link
                   to="/auth/login"
-                  className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium"
+                  className="text-slate-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-md text-sm font-medium"
                 >
                   {t('auth.signIn')}
                 </Link>
                 <Link
                   to="/auth/register"
-                  className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium"
+                  className="bg-blue-600 text-white hover:bg-blue-500 px-4 py-2 rounded-md text-sm font-medium"
                 >
                   {t('auth.signUp')}
                 </Link>

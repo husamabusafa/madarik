@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import { useI18n } from '../../contexts/I18nContext';
 import { 
-  Building, 
   LayoutDashboard, 
   Home, 
   Users, 
@@ -12,7 +11,6 @@ import {
   Settings, 
   LogOut, 
   Menu,
-  X,
   Globe,
   User,
   Bell,
@@ -62,11 +60,11 @@ export default function ModernLayout() {
   const Sidebar = ({ mobile = false }) => (
     <div className={clsx(
       'flex h-full flex-col',
-      mobile ? 'bg-white' : 'bg-gradient-to-b from-slate-900 to-slate-800'
+      mobile ? 'bg-slate-900' : 'bg-gradient-to-b from-slate-900 to-slate-800'
     )}>
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center px-6">
-        <Building className={clsx('h-8 w-8', mobile ? 'text-blue-600' : 'text-blue-400')} />
+        <img src="/logo.svg" alt="Madarik" className="h-8 w-8" />
         <span className={clsx(
           'text-xl font-bold',
           isRTL ? 'mr-3' : 'ml-3',
@@ -90,10 +88,10 @@ export default function ModernLayout() {
                     'group flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
                     isActive
                       ? mobile
-                        ? 'bg-blue-50 text-blue-700'
+                        ? 'bg-blue-600/20 text-white'
                         : 'bg-blue-600 text-white shadow-lg shadow-blue-600/25'
                       : mobile
-                      ? 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'text-slate-300 hover:bg-white/10 hover:text-white'
                       : 'text-slate-300 hover:bg-white/10 hover:text-white'
                   )}
                 >
@@ -102,8 +100,8 @@ export default function ModernLayout() {
                       'h-5 w-5 transition-colors',
                       isRTL ? 'ml-3' : 'mr-3',
                       isActive
-                        ? mobile ? 'text-blue-700' : 'text-white'
-                        : mobile ? 'text-gray-400 group-hover:text-gray-500' : 'text-slate-400 group-hover:text-white'
+                        ? mobile ? 'text-white' : 'text-white'
+                        : mobile ? 'text-slate-400 group-hover:text-slate-200' : 'text-slate-400 group-hover:text-white'
                     )}
                   />
                   {item.name}
@@ -125,25 +123,25 @@ export default function ModernLayout() {
         </ul>
 
         {/* User section */}
-        <div className={clsx('mt-auto pt-4', mobile ? 'border-t border-gray-200' : 'border-t border-slate-700')}>
-          <div className={clsx('mb-4 px-3 py-2 rounded-lg', mobile ? 'bg-gray-50' : 'bg-white/10')}>
+        <div className={clsx('mt-auto pt-4', mobile ? 'border-t border-slate-800' : 'border-t border-slate-700')}>
+          <div className={clsx('mb-4 px-3 py-2 rounded-lg', mobile ? 'bg-white/5' : 'bg-white/10')}>
             <div className="flex items-center">
               <div className={clsx(
                 'flex h-8 w-8 items-center justify-center rounded-full',
-                mobile ? 'bg-blue-100' : 'bg-blue-500'
+                mobile ? 'bg-blue-500' : 'bg-blue-500'
               )}>
-                <User className={clsx('h-4 w-4', mobile ? 'text-blue-600' : 'text-white')} />
+                <User className={clsx('h-4 w-4', mobile ? 'text-white' : 'text-white')} />
               </div>
               <div className={clsx('flex-1 min-w-0', isRTL ? 'mr-3' : 'ml-3')}>
                 <p className={clsx(
                   'truncate text-xs font-medium',
-                  mobile ? 'text-gray-900' : 'text-white'
+                  mobile ? 'text-white' : 'text-white'
                 )}>
                   {user?.email}
                 </p>
                 <p className={clsx(
                   'truncate text-xs',
-                  mobile ? 'text-gray-500' : 'text-slate-300'
+                  mobile ? 'text-slate-300' : 'text-slate-300'
                 )}>
                   {user?.role === 'ADMIN' ? t('users.admin') : t('users.manager')}
                 </p>
@@ -157,14 +155,14 @@ export default function ModernLayout() {
               className={clsx(
                 'group flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
                 mobile
-                  ? 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'text-slate-300 hover:bg-white/10 hover:text-white'
                   : 'text-slate-300 hover:bg-white/10 hover:text-white'
               )}
             >
               <Globe className={clsx(
                 'h-5 w-5',
                 isRTL ? 'ml-3' : 'mr-3',
-                mobile ? 'text-gray-400 group-hover:text-gray-500' : 'text-slate-400 group-hover:text-white'
+                mobile ? 'text-slate-400 group-hover:text-slate-200' : 'text-slate-400 group-hover:text-white'
               )} />
               {locale === 'EN' ? t('common.arabic') : t('common.english')}
             </button>
@@ -174,14 +172,14 @@ export default function ModernLayout() {
               className={clsx(
                 'group flex w-full items-center rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200',
                 mobile
-                  ? 'text-red-600 hover:bg-red-50 hover:text-red-700'
+                  ? 'text-red-300 hover:bg-red-500/10 hover:text-red-200'
                   : 'text-red-300 hover:bg-red-500/10 hover:text-red-200'
               )}
             >
               <LogOut className={clsx(
                 'h-5 w-5',
                 isRTL ? 'ml-3' : 'mr-3',
-                mobile ? 'text-red-500 group-hover:text-red-600' : 'text-red-400 group-hover:text-red-300'
+                mobile ? 'text-red-400 group-hover:text-red-300' : 'text-red-400 group-hover:text-red-300'
               )} />
               {t('auth.logout')}
             </button>
@@ -192,7 +190,7 @@ export default function ModernLayout() {
   );
 
   return (
-    <div className="flex h-screen bg-gray-50" dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className="flex h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-slate-100" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Desktop sidebar */}
       <div className="hidden lg:flex lg:w-64 lg:flex-col">
         <Sidebar />
@@ -228,10 +226,10 @@ export default function ModernLayout() {
       {/* Main content */}
       <div className="flex flex-1 flex-col lg:pl-0">
         {/* Top header */}
-        <div className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+        <div className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-x-4 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
           <button
             type="button"
-            className="-m-2.5 p-2.5 text-gray-700 lg:hidden"
+            className="-m-2.5 p-2.5 text-slate-300 lg:hidden"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
@@ -240,7 +238,7 @@ export default function ModernLayout() {
 
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1 items-center">
-              <h1 className="text-lg font-semibold text-gray-900">
+              <h1 className="text-lg font-semibold text-slate-100">
                 {navigation.find(item => item.href === location.pathname)?.name || 'Dashboard'}
               </h1>
             </div>
@@ -249,7 +247,7 @@ export default function ModernLayout() {
               {/* Notifications */}
               <button
                 type="button"
-                className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
+                className="-m-2.5 p-2.5 text-slate-400 hover:text-slate-200"
               >
                 <span className="sr-only">View notifications</span>
                 <Bell className="h-6 w-6" />

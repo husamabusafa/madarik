@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { graphqlApiService } from '../lib/graphql-api';
 
 interface User {
   id: string;
@@ -126,24 +127,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const acceptInvite = async (tokenValue: string, password: string, preferredLocale?: 'EN' | 'AR') => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3100/api/v1/auth/accept-invite', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: tokenValue, password, preferredLocale }),
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        throw new Error('Accept invite failed');
-      }
-
-      const json = await response.json();
-      const data = json.data;
-      setToken(data.token);
-      setUser(data.user);
-      localStorage.setItem('token', data.token);
+      const payload = await graphqlApiService.acceptInvite(tokenValue, password, preferredLocale);
+      setToken(payload.token);
+      setUser(payload.user);
+      localStorage.setItem('token', payload.token);
     } catch (error) {
       console.error('Accept invite error:', error);
       throw error;
@@ -155,17 +142,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const forgotPassword = async (email: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3100/api/v1/auth/forgot-password', {
+      const response = await fetch('http://localhost:3100/graphql', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `mutation ForgotPassword($email: String!) {\n            forgotPassword(input: { email: $email })\n          }`,
+          variables: { email },
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send reset email');
+      const json = await response.json();
+      if (!response.ok || json.errors) {
+        throw new Error(json.errors?.[0]?.message || 'Failed to send reset email');
       }
     } catch (error) {
       console.error('Forgot password error:', error);
@@ -178,17 +166,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const resetPassword = async (token: string, password: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3100/api/v1/auth/reset-password', {
+      const response = await fetch('http://localhost:3100/graphql', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token, password }),
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `mutation ResetPassword($token: String!, $password: String!) {\n            resetPassword(input: { token: $token, password: $password })\n          }`,
+          variables: { token, password },
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Password reset failed');
+      const json = await response.json();
+      if (!response.ok || json.errors) {
+        throw new Error(json.errors?.[0]?.message || 'Password reset failed');
       }
     } catch (error) {
       console.error('Reset password error:', error);
@@ -201,17 +190,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const verifyEmail = async (token: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3100/api/v1/auth/verify-email', {
+      const response = await fetch('http://localhost:3100/graphql', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: `mutation VerifyEmail($token: String!) {\n            verifyEmail(input: { token: $token })\n          }`,
+          variables: { token },
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Email verification failed');
+      const json = await response.json();
+      if (!response.ok || json.errors) {
+        throw new Error(json.errors?.[0]?.message || 'Email verification failed');
+      }
+
+      // Refresh current user so emailVerifiedAt is updated right away
+      try {
+        const me = await graphqlApiService.getMe();
+        setUser(me);
+      } catch (e) {
+        // Non-fatal: if fetching me fails, proceed without blocking
+        console.warn('Failed to refresh user after email verification:', e);
       }
     } catch (error) {
       console.error('Email verification error:', error);
@@ -226,17 +225,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3100/api/v1/auth/resend-verification', {
+      const response = await fetch('http://localhost:3100/graphql', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        credentials: 'include',
+        body: JSON.stringify({
+          query: `mutation ResendVerification {\n            resendVerification\n          }`,
+        }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to resend verification');
+      const json = await response.json();
+      if (!response.ok || json.errors) {
+        throw new Error(json.errors?.[0]?.message || 'Failed to resend verification');
       }
     } catch (error) {
       console.error('Resend verification error:', error);

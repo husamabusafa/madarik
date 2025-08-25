@@ -13,6 +13,8 @@ import { InvitesModule } from './invites/invites.module';
 import { AmenitiesModule } from './amenities/amenities.module';
 import { MediaModule } from './media/media.module';
 import { SettingsModule } from './settings/settings.module';
+import { MailModule } from './mail/mail.module';
+import { ToolsModule } from './tools/tools.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { SettingsModule } from './settings/settings.module';
     AmenitiesModule,
     MediaModule,
     SettingsModule,
+    MailModule,
+    ToolsModule,
   ],
 })
 export class AppModule {}

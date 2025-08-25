@@ -81,17 +81,17 @@ const Modal: React.FC<ModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className={`relative bg-white rounded-xl shadow-2xl w-full mx-4 ${sizeClasses[size]} max-h-[90vh] overflow-hidden`}
+            className={`relative bg-slate-900 border border-slate-800 text-slate-100 rounded-xl shadow-2xl w-full mx-4 ${sizeClasses[size]} max-h-[90vh] overflow-hidden`}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+            <div className="flex items-center justify-between p-6 border-b border-slate-800">
+              <h2 className="text-xl font-semibold text-slate-100">{title}</h2>
               {showCloseButton && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-2"
+                  className="text-slate-400 hover:text-slate-200 hover:bg-white/10 p-2"
                 >
                   <X className="h-5 w-5" />
                 </Button>

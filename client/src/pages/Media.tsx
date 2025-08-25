@@ -109,7 +109,7 @@ const Media: React.FC = () => {
 
   const MediaCard = ({ item }: { item: any }) => (
     <motion.div
-      className="group relative bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-200"
+      className="group relative bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden hover:shadow-md transition-all duration-200"
       whileHover={{ y: -2 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -126,7 +126,7 @@ const Media: React.FC = () => {
               setSelectedItems(selectedItems.filter(id => id !== item.id));
             }
           }}
-          className="h-4 w-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500"
+          className="h-4 w-4 text-blue-400 bg-slate-900 border-slate-700 rounded focus:ring-blue-500"
         />
       </div>
 
@@ -140,7 +140,7 @@ const Media: React.FC = () => {
       )}
 
       {/* Media preview */}
-      <div className="aspect-w-16 aspect-h-9 bg-gray-100">
+      <div className="aspect-w-16 aspect-h-9 bg-slate-800">
         <div className="relative">
           <img
             src={item.url}
@@ -156,15 +156,15 @@ const Media: React.FC = () => {
           )}
           
           {/* Overlay actions */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-200 flex items-center justify-center opacity-0 group-hover:opacity-100">
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" className="bg-white/90 text-gray-900 hover:bg-white">
+              <Button variant="ghost" size="sm" className="bg-slate-900/80 text-slate-100 hover:bg-slate-800">
                 <Eye className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="bg-white/90 text-gray-900 hover:bg-white">
+              <Button variant="ghost" size="sm" className="bg-slate-900/80 text-slate-100 hover:bg-slate-800">
                 <Download className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="bg-white/90 text-gray-900 hover:bg-white">
+              <Button variant="ghost" size="sm" className="bg-slate-900/80 text-slate-100 hover:bg-slate-800">
                 <Edit className="h-4 w-4" />
               </Button>
             </div>
@@ -177,18 +177,18 @@ const Media: React.FC = () => {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center">
             {item.type === 'VIDEO' ? (
-              <Video className="h-4 w-4 text-purple-500 mr-2" />
+              <Video className="h-4 w-4 text-purple-400 mr-2" />
             ) : (
-              <ImageIcon className="h-4 w-4 text-blue-500 mr-2" />
+              <ImageIcon className="h-4 w-4 text-blue-400 mr-2" />
             )}
-            <span className="text-sm font-medium text-gray-900 truncate">{item.name}</span>
+            <span className="text-sm font-medium text-slate-100 truncate">{item.name}</span>
           </div>
           <Button variant="ghost" size="sm">
             <MoreVertical className="h-4 w-4" />
           </Button>
         </div>
         
-        <div className="text-xs text-gray-500 space-y-1">
+        <div className="text-xs text-slate-400 space-y-1">
           <div>{item.dimensions} • {item.size}</div>
           <div className="truncate">{item.propertyTitle}</div>
           <div>Uploaded {formatDate(item.uploadedAt)}</div>
@@ -201,7 +201,7 @@ const Media: React.FC = () => {
     {
       key: 'select',
       label: '',
-      render: (value: any, row: any) => (
+      render: (_: any, row: any) => (
         <input
           type="checkbox"
           checked={selectedItems.includes(row.id)}
@@ -212,7 +212,7 @@ const Media: React.FC = () => {
               setSelectedItems(selectedItems.filter(id => id !== row.id));
             }
           }}
-          className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+          className="h-4 w-4 text-blue-400 border-slate-700 bg-slate-900 rounded focus:ring-blue-500"
         />
       ),
       width: '12'
@@ -240,8 +240,8 @@ const Media: React.FC = () => {
             )}
           </div>
           <div>
-            <div className="font-medium text-gray-900">{value}</div>
-            <div className="text-sm text-gray-500">{row.dimensions} • {row.size}</div>
+            <div className="font-medium text-slate-100">{value}</div>
+            <div className="text-sm text-slate-400">{row.dimensions} • {row.size}</div>
           </div>
         </div>
       )
@@ -250,7 +250,7 @@ const Media: React.FC = () => {
       key: 'propertyTitle',
       label: 'Property',
       render: (value: string) => (
-        <div className="text-sm text-gray-900 max-w-xs truncate">{value}</div>
+        <div className="text-sm text-slate-100 max-w-xs truncate">{value}</div>
       )
     },
     {
@@ -259,11 +259,11 @@ const Media: React.FC = () => {
       render: (value: string) => (
         <div className="flex items-center">
           {value === 'VIDEO' ? (
-            <Video className="h-4 w-4 text-purple-500 mr-1" />
+            <Video className="h-4 w-4 text-purple-400 mr-1" />
           ) : (
-            <ImageIcon className="h-4 w-4 text-blue-500 mr-1" />
+            <ImageIcon className="h-4 w-4 text-blue-400 mr-1" />
           )}
-          <span className="text-sm text-gray-600">{value}</span>
+          <span className="text-sm text-slate-400">{value}</span>
         </div>
       )
     },
@@ -272,15 +272,15 @@ const Media: React.FC = () => {
       label: 'Uploaded',
       render: (value: string, row: any) => (
         <div className="text-sm">
-          <div className="text-gray-900">{formatDate(value)}</div>
-          <div className="text-gray-500">by {row.uploadedBy}</div>
+          <div className="text-slate-100">{formatDate(value)}</div>
+          <div className="text-slate-400">by {row.uploadedBy}</div>
         </div>
       )
     },
     {
       key: 'actions',
       label: 'Actions',
-      render: (value: any, row: any) => (
+      render: () => (
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="sm" title="View">
             <Eye className="h-4 w-4" />
@@ -306,8 +306,8 @@ const Media: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Media Library</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-slate-100">Media Library</h1>
+          <p className="mt-2 text-slate-400">
             Manage property photos, videos, and other media assets.
           </p>
         </div>
@@ -354,7 +354,7 @@ const Media: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   placeholder="Search media files..."
                   value={searchTerm}
@@ -366,7 +366,7 @@ const Media: React.FC = () => {
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">All Types</option>
                 <option value="photo">Photos</option>
@@ -380,13 +380,13 @@ const Media: React.FC = () => {
                 More Filters
               </Button>
               
-              <div className="flex items-center border border-gray-300 rounded-lg">
+              <div className="flex items-center border border-slate-700 rounded-lg">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`px-3 py-2 text-sm rounded-l-lg transition-colors ${
                     viewMode === 'grid' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-slate-800 text-slate-100' 
+                      : 'text-slate-400 hover:bg-slate-800/60'
                   }`}
                 >
                   <Grid3X3 className="h-4 w-4" />
@@ -395,8 +395,8 @@ const Media: React.FC = () => {
                   onClick={() => setViewMode('list')}
                   className={`px-3 py-2 text-sm rounded-r-lg transition-colors ${
                     viewMode === 'list' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-slate-800 text-slate-100' 
+                      : 'text-slate-400 hover:bg-slate-800/60'
                   }`}
                 >
                   <List className="h-4 w-4" />

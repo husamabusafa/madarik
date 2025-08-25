@@ -5,12 +5,10 @@ import {
   Upload, 
   Globe, 
   Mail, 
-  Phone, 
   MapPin, 
   Building, 
   Link as LinkIcon,
   Key,
-  Palette,
   Bell,
   Shield,
   Database,
@@ -73,9 +71,9 @@ const Settings: React.FC = () => {
     <div className="space-y-8">
       {/* Logo Upload */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Company Logo</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Company Logo</h3>
         <div className="flex items-center space-x-6">
-          <div className="h-24 w-24 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+          <div className="h-24 w-24 rounded-lg border-2 border-dashed border-white/20 flex items-center justify-center bg-white/5">
             {companyData.logoUrl ? (
               <img src={companyData.logoUrl} alt="Company Logo" className="h-full w-full object-cover rounded-lg" />
             ) : (
@@ -93,7 +91,7 @@ const Settings: React.FC = () => {
                 Remove
               </Button>
             )}
-            <p className="text-xs text-gray-500">PNG, JPG up to 2MB. Recommended: 200x200px</p>
+            <p className="text-xs text-gray-400">PNG, JPG up to 2MB. Recommended: 200x200px</p>
           </div>
         </div>
       </div>
@@ -140,12 +138,12 @@ const Settings: React.FC = () => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-200 mb-2">
           Company Description
         </label>
         <textarea
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full px-3 py-2 border border-white/15 bg-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100 placeholder:text-gray-400"
           value={companyData.description}
           onChange={(e) => setCompanyData({ ...companyData, description: e.target.value })}
           placeholder="Brief description of your company..."
@@ -164,7 +162,7 @@ const Settings: React.FC = () => {
   const renderEmailSettings = () => (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">SMTP Configuration</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">SMTP Configuration</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input
             label="SMTP Host"
@@ -192,7 +190,7 @@ const Settings: React.FC = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Email Branding</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Email Branding</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Input
             label="From Name"
@@ -209,7 +207,7 @@ const Settings: React.FC = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Notification Recipients</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Notification Recipients</h3>
         <div className="space-y-3">
           {emailSettings.notificationEmails.map((email, index) => (
             <div key={index} className="flex items-center space-x-3">
@@ -254,7 +252,7 @@ const Settings: React.FC = () => {
   const renderMapSettings = () => (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Map Provider</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Map Provider</h3>
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
             <input
@@ -264,9 +262,9 @@ const Settings: React.FC = () => {
               value="google"
               checked={mapSettings.provider === 'google'}
               onChange={(e) => setMapSettings({ ...mapSettings, provider: e.target.value })}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20"
             />
-            <label htmlFor="google-maps" className="text-sm font-medium text-gray-900">
+            <label htmlFor="google-maps" className="text-sm font-medium text-gray-200">
               Google Maps
             </label>
           </div>
@@ -278,9 +276,9 @@ const Settings: React.FC = () => {
               value="mapbox"
               checked={mapSettings.provider === 'mapbox'}
               onChange={(e) => setMapSettings({ ...mapSettings, provider: e.target.value })}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20"
             />
-            <label htmlFor="mapbox" className="text-sm font-medium text-gray-900">
+            <label htmlFor="mapbox" className="text-sm font-medium text-gray-200">
               Mapbox
             </label>
           </div>
@@ -288,7 +286,7 @@ const Settings: React.FC = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">API Configuration</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">API Configuration</h3>
         <div className="space-y-6">
           {mapSettings.provider === 'google' && (
             <Input
@@ -312,7 +310,7 @@ const Settings: React.FC = () => {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Default Map Settings</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Default Map Settings</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Input
             label="Default Zoom Level"
@@ -360,21 +358,21 @@ const Settings: React.FC = () => {
         return (
           <div className="text-center py-12">
             <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Notification settings coming soon</p>
+            <p className="text-gray-400">Notification settings coming soon</p>
           </div>
         );
       case 'security':
         return (
           <div className="text-center py-12">
             <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Security settings coming soon</p>
+            <p className="text-gray-400">Security settings coming soon</p>
           </div>
         );
       case 'integrations':
         return (
           <div className="text-center py-12">
             <LinkIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500">Integration settings coming soon</p>
+            <p className="text-gray-400">Integration settings coming soon</p>
           </div>
         );
       default:
@@ -391,8 +389,8 @@ const Settings: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-100">Settings</h1>
+          <p className="mt-2 text-gray-300">
             Configure your platform settings, integrations, and preferences.
           </p>
         </div>
@@ -417,8 +415,8 @@ const Settings: React.FC = () => {
                     onClick={() => setActiveTab(tab.id)}
                     className={`w-full flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                       activeTab === tab.id
-                        ? 'bg-blue-100 text-blue-700'
-                        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                        ? 'bg-blue-600/20 text-blue-400'
+                        : 'text-gray-300 hover:bg-white/10 hover:text-gray-100'
                     }`}
                   >
                     <Icon className="h-4 w-4 mr-3 flex-shrink-0" />
@@ -433,9 +431,9 @@ const Settings: React.FC = () => {
           <Card className="p-4 mt-6">
             <div className="flex items-center mb-3">
               <HelpCircle className="h-5 w-5 text-blue-600 mr-2" />
-              <h3 className="text-sm font-medium text-gray-900">Need Help?</h3>
+              <h3 className="text-sm font-medium text-gray-100">Need Help?</h3>
             </div>
-            <p className="text-xs text-gray-600 mb-3">
+            <p className="text-xs text-gray-300 mb-3">
               Check our documentation for detailed configuration guides.
             </p>
             <Button variant="outline" size="sm" className="w-full">
@@ -468,39 +466,39 @@ const Settings: React.FC = () => {
       >
         <Card className="p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Database className="h-6 w-6 text-green-600" />
+            <div className="p-3 bg-green-600/20 rounded-lg">
+              <Database className="h-6 w-6 text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Last Backup</p>
-              <p className="text-lg font-bold text-gray-900">2 hours ago</p>
-              <p className="text-sm text-green-600 mt-1">All systems operational</p>
+              <p className="text-sm font-medium text-gray-400">Last Backup</p>
+              <p className="text-lg font-bold text-gray-100">2 hours ago</p>
+              <p className="text-sm text-green-400 mt-1">All systems operational</p>
             </div>
           </div>
         </Card>
         
         <Card className="p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Globe className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-blue-600/20 rounded-lg">
+              <Globe className="h-6 w-6 text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">API Status</p>
-              <p className="text-lg font-bold text-gray-900">99.9%</p>
-              <p className="text-sm text-blue-600 mt-1">All integrations active</p>
+              <p className="text-sm font-medium text-gray-400">API Status</p>
+              <p className="text-lg font-bold text-gray-100">99.9%</p>
+              <p className="text-sm text-blue-400 mt-1">All integrations active</p>
             </div>
           </div>
         </Card>
         
         <Card className="p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Key className="h-6 w-6 text-purple-600" />
+            <div className="p-3 bg-purple-600/20 rounded-lg">
+              <Key className="h-6 w-6 text-purple-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Security Score</p>
-              <p className="text-lg font-bold text-gray-900">A+</p>
-              <p className="text-sm text-purple-600 mt-1">Excellent security</p>
+              <p className="text-sm font-medium text-gray-400">Security Score</p>
+              <p className="text-lg font-bold text-gray-100">A+</p>
+              <p className="text-sm text-purple-400 mt-1">Excellent security</p>
             </div>
           </div>
         </Card>

@@ -12,7 +12,6 @@ import {
   FileText,
   Globe,
   Calendar,
-  User,
   ExternalLink,
   Copy
 } from 'lucide-react';
@@ -23,9 +22,20 @@ import Table from '../components/common/Table';
 import StatCard from '../components/common/StatCard';
 
 const Content: React.FC = () => {
+  interface ContentPage {
+    id: number;
+    titleEn: string;
+    titleAr: string;
+    slugEn: string;
+    slugAr: string;
+    published: boolean;
+    showInMenu: boolean;
+    views: number;
+    lastModified: string;
+    modifiedBy: string;
+  }
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
   const [newPage, setNewPage] = useState({
     titleEn: '',
     titleAr: '',
@@ -40,7 +50,7 @@ const Content: React.FC = () => {
   });
 
   // Mock data for content pages
-  const contentPages = [
+  const contentPages: ContentPage[] = [
     {
       id: 1,
       titleEn: 'About Us',
@@ -152,31 +162,31 @@ const Content: React.FC = () => {
     {
       key: 'titleEn',
       label: 'Page',
-      render: (value: string, row: any) => (
+      render: (value: string, row: ContentPage) => (
         <div>
-          <div className="font-medium text-gray-900">{value}</div>
-          <div className="text-sm text-gray-500 flex items-center mt-1">
+          <div className="font-medium text-slate-100">{value}</div>
+          <div className="text-sm text-slate-400 flex items-center mt-1">
             <ExternalLink className="h-3 w-3 mr-1" />
             /{row.slugEn}
           </div>
-          <div className="text-sm text-gray-600 mt-1" dir="rtl">{row.titleAr}</div>
+          <div className="text-sm text-slate-300 mt-1" dir="rtl">{row.titleAr}</div>
         </div>
       )
     },
     {
       key: 'published',
       label: 'Status',
-      render: (value: boolean, row: any) => (
+      render: (value: boolean, row: ContentPage) => (
         <div className="space-y-1">
           <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
             value 
-              ? 'bg-green-100 text-green-700' 
-              : 'bg-gray-100 text-gray-700'
+              ? 'bg-green-500/10 text-green-400' 
+              : 'bg-slate-800/60 text-slate-300'
           }`}>
             {value ? 'Published' : 'Draft'}
           </span>
           {row.showInMenu && (
-            <div className="text-xs text-blue-600">In Menu</div>
+            <div className="text-xs text-blue-400">In Menu</div>
           )}
         </div>
       )
@@ -184,24 +194,24 @@ const Content: React.FC = () => {
     {
       key: 'views',
       label: 'Views',
-      render: (value: number) => (
-        <span className="text-sm text-gray-900">{value.toLocaleString()}</span>
+      render: (v: number) => (
+        <span className="text-sm text-slate-300">{v.toLocaleString()}</span>
       )
     },
     {
       key: 'lastModified',
       label: 'Last Modified',
-      render: (value: string, row: any) => (
+      render: (value: string, row: ContentPage) => (
         <div className="text-sm">
-          <div className="text-gray-900">{formatDate(value)}</div>
-          <div className="text-gray-500">by {row.modifiedBy}</div>
+          <div className="text-slate-100">{formatDate(value)}</div>
+          <div className="text-slate-400">by {row.modifiedBy}</div>
         </div>
       )
     },
     {
       key: 'actions',
       label: 'Actions',
-      render: (value: any, row: any) => (
+      render: (_: unknown, row: ContentPage) => (
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="sm" title="Preview">
             <ExternalLink className="h-4 w-4" />
@@ -238,8 +248,8 @@ const Content: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Content Management</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-slate-100">Content Management</h1>
+          <p className="mt-2 text-slate-400">
             Create and manage static pages, legal documents, and other content for your website.
           </p>
         </div>
@@ -277,7 +287,7 @@ const Content: React.FC = () => {
         <Card className="p-6">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-500" />
               <Input
                 placeholder="Search pages..."
                 value={searchTerm}
@@ -287,13 +297,13 @@ const Content: React.FC = () => {
             </div>
             
             <div className="flex items-center gap-2">
-              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <select className="px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="all">All Status</option>
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
               </select>
               
-              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <select className="px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 <option value="all">All Pages</option>
                 <option value="menu">In Menu</option>
                 <option value="legal">Legal Pages</option>
@@ -322,7 +332,7 @@ const Content: React.FC = () => {
         transition={{ duration: 0.5, delay: 0.4 }}
       >
         <Card className="p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Templates</h3>
+          <h3 className="text-lg font-semibold text-slate-100 mb-4">Quick Templates</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { name: 'About Us Page', description: 'Company information and team details' },
@@ -334,15 +344,15 @@ const Content: React.FC = () => {
             ].map((template, index) => (
               <motion.div
                 key={template.name}
-                className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 cursor-pointer"
+                className="p-4 border border-slate-800 rounded-lg hover:border-blue-500 hover:bg-slate-800/60 transition-all duration-200 cursor-pointer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.1 }}
               >
-                <h4 className="font-medium text-gray-900 mb-1">{template.name}</h4>
-                <p className="text-sm text-gray-600">{template.description}</p>
+                <h4 className="font-medium text-slate-100 mb-1">{template.name}</h4>
+                <p className="text-sm text-slate-400">{template.description}</p>
               </motion.div>
             ))}
           </div>
@@ -351,18 +361,18 @@ const Content: React.FC = () => {
 
       {/* Add Page Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-50">
           <motion.div
-            className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
+            className="bg-slate-900 border border-slate-800 rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-medium text-gray-900">Create New Page</h3>
+              <h3 className="text-lg font-medium text-slate-100">Create New Page</h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-500 hover:text-slate-300"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -371,7 +381,7 @@ const Content: React.FC = () => {
             <div className="space-y-6">
               {/* Basic Information */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Basic Information</h4>
+                <h4 className="text-sm font-medium text-slate-100 mb-3">Basic Information</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="English Title"
@@ -421,15 +431,15 @@ const Content: React.FC = () => {
 
               {/* Content */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Content</h4>
+                <h4 className="text-sm font-medium text-slate-100 mb-3">Content</h4>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       English Content
                     </label>
                     <textarea
                       rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       value={newPage.contentEn}
                       onChange={(e) => setNewPage({ ...newPage, contentEn: e.target.value })}
                       placeholder="Enter page content in English..."
@@ -437,12 +447,12 @@ const Content: React.FC = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
                       Arabic Content
                     </label>
                     <textarea
                       rows={6}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
+                      className="w-full px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
                       value={newPage.contentAr}
                       onChange={(e) => setNewPage({ ...newPage, contentAr: e.target.value })}
                       placeholder="أدخل محتوى الصفحة باللغة العربية..."
@@ -454,7 +464,7 @@ const Content: React.FC = () => {
 
               {/* SEO */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">SEO Settings</h4>
+                <h4 className="text-sm font-medium text-slate-100 mb-3">SEO Settings</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <Input
                     label="English Meta Description"
@@ -475,7 +485,7 @@ const Content: React.FC = () => {
 
               {/* Settings */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">Page Settings</h4>
+                <h4 className="text-sm font-medium text-slate-100 mb-3">Page Settings</h4>
                 <div className="space-y-3">
                   <div className="flex items-center">
                     <input
@@ -483,9 +493,9 @@ const Content: React.FC = () => {
                       id="published"
                       checked={newPage.published}
                       onChange={(e) => setNewPage({ ...newPage, published: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="h-4 w-4 text-blue-600 border-slate-700 rounded focus:ring-blue-500"
                     />
-                    <label htmlFor="published" className="ml-2 text-sm text-gray-700">
+                    <label htmlFor="published" className="ml-2 text-sm text-slate-300">
                       Publish immediately
                     </label>
                   </div>
@@ -496,9 +506,9 @@ const Content: React.FC = () => {
                       id="showInMenu"
                       checked={newPage.showInMenu}
                       onChange={(e) => setNewPage({ ...newPage, showInMenu: e.target.checked })}
-                      className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="h-4 w-4 text-blue-600 border-slate-700 rounded focus:ring-blue-500"
                     />
-                    <label htmlFor="showInMenu" className="ml-2 text-sm text-gray-700">
+                    <label htmlFor="showInMenu" className="ml-2 text-sm text-slate-300">
                       Show in navigation menu
                     </label>
                   </div>

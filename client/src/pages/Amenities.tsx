@@ -14,20 +14,19 @@ import {
   Home,
   Car,
   Waves,
-  Dumbbell,
   Shield,
   Wifi
 } from 'lucide-react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import Input from '../components/common/Input';
-import Table from '../components/common/Table';
+// Table not used on this page
 import StatCard from '../components/common/StatCard';
 
 const Amenities: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
+  // editingId state removed until edit flow is implemented
   const [newAmenity, setNewAmenity] = useState({
     key: '',
     labelEn: '',
@@ -118,31 +117,31 @@ const Amenities: React.FC = () => {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg mr-3">
-              <IconComponent className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-blue-500/15 rounded-lg mr-3">
+              <IconComponent className="h-5 w-5 text-blue-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+            <h3 className="text-lg font-semibold text-slate-100">{category.name}</h3>
           </div>
-          <span className="text-sm text-gray-500">{category.amenities.length} items</span>
+          <span className="text-sm text-slate-400">{category.amenities.length} items</span>
         </div>
 
         <div className="space-y-3">
           {category.amenities.map((amenity: any) => (
             <motion.div
               key={amenity.id}
-              className="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-3 border border-slate-800 rounded-lg hover:bg-slate-800/60 transition-colors"
               whileHover={{ scale: 1.01 }}
             >
               <div className="flex items-center space-x-3">
                 <div className="cursor-move">
-                  <GripVertical className="h-4 w-4 text-gray-400" />
+                  <GripVertical className="h-4 w-4 text-slate-500" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <span className="font-medium text-gray-900">{amenity.labelEn}</span>
-                    <span className="text-sm text-gray-500">({amenity.labelAr})</span>
+                    <span className="font-medium text-slate-100">{amenity.labelEn}</span>
+                    <span className="text-sm text-slate-400">({amenity.labelAr})</span>
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-slate-400">
                     Used in {amenity.usageCount} properties
                   </div>
                 </div>
@@ -153,8 +152,8 @@ const Amenities: React.FC = () => {
                   onClick={() => toggleAmenityStatus(amenity.id)}
                   className={`p-1 rounded transition-colors ${
                     amenity.active 
-                      ? 'text-green-600 hover:bg-green-100' 
-                      : 'text-gray-400 hover:bg-gray-100'
+                      ? 'text-green-400 hover:bg-green-500/15' 
+                      : 'text-slate-500 hover:bg-slate-700/40'
                   }`}
                   title={amenity.active ? 'Active' : 'Inactive'}
                 >
@@ -164,7 +163,7 @@ const Amenities: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setEditingId(amenity.id)}
+                  title="Edit (coming soon)"
                 >
                   <Edit className="h-4 w-4" />
                 </Button>
@@ -172,7 +171,7 @@ const Amenities: React.FC = () => {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-red-600 hover:text-red-700"
+                  className="text-red-400 hover:bg-red-500/15"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -194,8 +193,8 @@ const Amenities: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Amenities</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-slate-100">Amenities</h1>
+          <p className="mt-2 text-slate-400">
             Manage property amenities and features that can be assigned to listings.
           </p>
         </div>
@@ -232,7 +231,7 @@ const Amenities: React.FC = () => {
       >
         <Card className="p-6">
           <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
               placeholder="Search amenities..."
               value={searchTerm}
@@ -264,18 +263,18 @@ const Amenities: React.FC = () => {
 
       {/* Add Amenity Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <motion.div
-            className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
+            className="bg-slate-900 border border-slate-800 rounded-lg p-6 w-full max-w-md mx-4"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">Add New Amenity</h3>
+              <h3 className="text-lg font-medium text-slate-100">Add New Amenity</h3>
               <button
                 onClick={() => setShowAddModal(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-slate-500 hover:text-slate-300"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -305,13 +304,13 @@ const Amenities: React.FC = () => {
               />
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
                   Category
                 </label>
                 <select
                   value={newAmenity.category}
                   onChange={(e) => setNewAmenity({ ...newAmenity, category: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="building">Building Features</option>
                   <option value="parking">Parking & Transportation</option>
@@ -327,9 +326,9 @@ const Amenities: React.FC = () => {
                   id="active"
                   checked={newAmenity.active}
                   onChange={(e) => setNewAmenity({ ...newAmenity, active: e.target.checked })}
-                  className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  className="h-4 w-4 text-blue-400 border-slate-700 bg-slate-900 rounded focus:ring-blue-500"
                 />
-                <label htmlFor="active" className="ml-2 text-sm text-gray-700">
+                <label htmlFor="active" className="ml-2 text-sm text-slate-300">
                   Active (visible to users)
                 </label>
               </div>

@@ -15,6 +15,15 @@ body {
   @apply bg-gray-50 text-gray-900;
 }
 
+/* Dark theme overrides */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  @apply bg-slate-950 text-slate-100;
+}
+
 /* RTL-specific styles */
 [dir="rtl"] {
   font-family: 'Segoe UI', Tahoma, Arial, sans-serif;

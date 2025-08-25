@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client';
 
 // Invitation Mutations
-export const INVITE_USER = gql`
-  mutation InviteUser($input: InviteUserInput!) {
-    inviteUser(input: $input) {
+export const CREATE_INVITE = gql`
+  mutation CreateInvite($input: CreateInviteInput!) {
+    createInvite(input: $input) {
       id
       email
       invitedRole
@@ -14,27 +14,50 @@ export const INVITE_USER = gql`
   }
 `;
 
-export const RESEND_INVITATION = gql`
-  mutation ResendInvitation($id: ID!) {
-    resendInvitation(id: $id)
-  }
-`;
-
-export const REVOKE_INVITATION = gql`
-  mutation RevokeInvitation($id: ID!) {
-    revokeInvitation(id: $id)
-  }
-`;
-
-export const ACCEPT_INVITATION = gql`
-  mutation AcceptInvitation($input: AcceptInvitationInput!) {
-    acceptInvitation(input: $input) {
+export const RESEND_INVITE = gql`
+  mutation ResendInvite($id: ID!) {
+    resendInvite(id: $id) {
       id
       email
-      role
-      isActive
-      emailVerifiedAt
-      preferredLocale
+      invitedRole
+      status
+      expiresAt
+      createdAt
+    }
+  }
+`;
+
+export const REVOKE_INVITE = gql`
+  mutation RevokeInvite($id: ID!) {
+    revokeInvite(id: $id) {
+      id
+      email
+      invitedRole
+      status
+      expiresAt
+      createdAt
+    }
+  }
+`;
+
+export const DELETE_INVITE = gql`
+  mutation DeleteInvite($id: ID!) {
+    deleteInvite(id: $id)
+  }
+`;
+
+export const ACCEPT_INVITE = gql`
+  mutation AcceptInvite($input: AcceptInviteInput!) {
+    acceptInvite(input: $input) {
+      token
+      user {
+        id
+        email
+        role
+        isActive
+        emailVerifiedAt
+        preferredLocale
+      }
     }
   }
 `;
@@ -96,6 +119,19 @@ export const UPDATE_USER_PROFILE = gql`
       lastLoginAt
       createdAt
       preferredLocale
+    }
+  }
+`;
+
+// Tools / Diagnostics
+export const SEND_TEST_EMAIL = gql`
+  mutation SendTestEmail($input: SendTestEmailInput!) {
+    sendTestEmail(input: $input) {
+      success
+      messageId
+      skipped
+      error
+      raw
     }
   }
 `;

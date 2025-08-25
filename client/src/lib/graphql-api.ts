@@ -8,9 +8,11 @@ import {
   GET_ME,
 } from './graphql/queries';
 import {
-  INVITE_USER,
-  RESEND_INVITATION,
-  REVOKE_INVITATION,
+  CREATE_INVITE,
+  RESEND_INVITE,
+  REVOKE_INVITE,
+  ACCEPT_INVITE,
+  DELETE_INVITE,
   UPDATE_USER_ROLE,
   UPDATE_USER_STATUS,
   UPDATE_PROFILE,
@@ -56,13 +58,12 @@ interface User {
 interface UserStats {
   totalUsers: number;
   activeUsers: number;
-  inactiveUsers: number;
   adminUsers: number;
   managerUsers: number;
 }
 
 class GraphQLApiService {
-  private client: ApolloClient<any>;
+  private client: ApolloClient;
 
   constructor() {
     this.client = apolloClient;
@@ -70,88 +71,92 @@ class GraphQLApiService {
 
   // User methods
   async getUsers(): Promise<User[]> {
-    const { data } = await this.client.query({
+    const result = await this.client.query({
       query: GET_USERS,
-      fetchPolicy: 'cache-and-network',
-    });
-    return data.users;
+    } as any);
+    const data = (result as any).data as any;
+    return data.users as User[];
   }
 
   async getUserStats(): Promise<UserStats> {
-    const { data } = await this.client.query({
+    const result = await this.client.query({
       query: GET_USER_STATS,
-      fetchPolicy: 'cache-and-network',
-    });
-    return data.userStats;
+    } as any);
+    const data = (result as any).data as any;
+    return data.userStats as UserStats;
   }
 
   async getUsersForAssignment(): Promise<User[]> {
-    const { data } = await this.client.query({
+    const result = await this.client.query({
       query: GET_USERS_FOR_ASSIGNMENT,
-      fetchPolicy: 'cache-and-network',
-    });
-    return data.usersForAssignment;
+    } as any);
+    const data = (result as any).data as any;
+    return data.usersForAssignment as User[];
   }
 
   async getMe(): Promise<User> {
-    const { data } = await this.client.query({
+    const result = await this.client.query({
       query: GET_ME,
-      fetchPolicy: 'cache-and-network',
-    });
-    return data.me;
+    } as any);
+    const data = (result as any).data as any;
+    return data.me as User;
   }
 
   async updateUserRole(userId: string, role: 'ADMIN' | 'MANAGER'): Promise<User> {
-    const { data } = await this.client.mutate({
+    const result = await this.client.mutate({
       mutation: UPDATE_USER_ROLE,
       variables: {
         id: userId,
         input: { role },
       },
       refetchQueries: [{ query: GET_USERS }, { query: GET_USER_STATS }],
-    });
-    return data.updateUserRole;
+    } as any);
+    const data = (result as any).data as any;
+    return data.updateUserRole as User;
   }
 
   async updateUserStatus(userId: string, isActive: boolean): Promise<User> {
-    const { data } = await this.client.mutate({
+    const result = await this.client.mutate({
       mutation: UPDATE_USER_STATUS,
       variables: {
         id: userId,
         input: { isActive },
       },
       refetchQueries: [{ query: GET_USERS }, { query: GET_USER_STATS }],
-    });
-    return data.updateUserStatus;
+    } as any);
+    const data = (result as any).data as any;
+    return data.updateUserStatus as User;
   }
 
   async updateProfile(preferredLocale?: 'EN' | 'AR'): Promise<User> {
-    const { data } = await this.client.mutate({
+    const result = await this.client.mutate({
       mutation: UPDATE_PROFILE,
       variables: {
         input: { preferredLocale },
       },
       refetchQueries: [{ query: GET_ME }],
-    });
-    return data.updateProfile;
+    } as any);
+    const data = (result as any).data as any;
+    return data.updateProfile as User;
   }
 
   async updateUserProfile(userId: string, preferredLocale?: 'EN' | 'AR'): Promise<User> {
-    const { data } = await this.client.mutate({
+    const result = await this.client.mutate({
       mutation: UPDATE_USER_PROFILE,
       variables: {
         id: userId,
         input: { preferredLocale },
       },
       refetchQueries: [{ query: GET_USERS }],
-    });
-    return data.updateUserProfile;
+    } as any);
+    const data = (result as any).data as any;
+    return data.updateUserProfile as User;
   }
 
   // Invitation methods
   async inviteUser(request: InviteUserRequest): Promise<UserInvite> {
-    const { data } = await this.client.mutate({
-      mutation: INVITE_USER,
+    const result = await this.client.mutate({
+      mutation: CREATE_INVITE,
       variables: {
         input: {
           email: request.email,
@@ -160,34 +165,58 @@ class GraphQLApiService {
         },
       },
       refetchQueries: [{ query: GET_INVITATIONS }, { query: GET_USER_STATS }],
-    });
-    return data.inviteUser;
+    } as any);
+    const data = (result as any).data as any;
+    return data.createInvite as UserInvite;
   }
 
   async getInvites(): Promise<UserInvite[]> {
-    const { data } = await this.client.query({
+    const result = await this.client.query({
       query: GET_INVITATIONS,
-      fetchPolicy: 'cache-and-network',
-    });
-    return data.invitations;
+    } as any);
+    const data = (result as any).data as any;
+    return data.invites as UserInvite[];
   }
 
-  async resendInvite(inviteId: string): Promise<string> {
-    const { data } = await this.client.mutate({
-      mutation: RESEND_INVITATION,
+  async resendInvite(inviteId: string): Promise<UserInvite> {
+    const result = await this.client.mutate({
+      mutation: RESEND_INVITE,
       variables: { id: inviteId },
       refetchQueries: [{ query: GET_INVITATIONS }],
-    });
-    return data.resendInvitation;
+    } as any);
+    const data = (result as any).data as any;
+    return data.resendInvite as UserInvite;
   }
 
-  async revokeInvite(inviteId: string): Promise<string> {
-    const { data } = await this.client.mutate({
-      mutation: REVOKE_INVITATION,
+  async revokeInvite(inviteId: string): Promise<UserInvite> {
+    const result = await this.client.mutate({
+      mutation: REVOKE_INVITE,
       variables: { id: inviteId },
       refetchQueries: [{ query: GET_INVITATIONS }],
-    });
-    return data.revokeInvitation;
+    } as any);
+    const data = (result as any).data as any;
+    return data.revokeInvite as UserInvite;
+  }
+
+  async deleteInvite(inviteId: string): Promise<boolean> {
+    const result = await this.client.mutate({
+      mutation: DELETE_INVITE,
+      variables: { id: inviteId },
+      refetchQueries: [{ query: GET_INVITATIONS }],
+    } as any);
+    const data = (result as any).data as any;
+    return data.deleteInvite as boolean;
+  }
+
+  async acceptInvite(token: string, password: string, preferredLocale?: 'EN' | 'AR') {
+    const result = await this.client.mutate({
+      mutation: ACCEPT_INVITE,
+      variables: {
+        input: { token, password, preferredLocale },
+      },
+    } as any);
+    const data = (result as any).data as any;
+    return data.acceptInvite as { token: string; user: User };
   }
 
   // Helper method to refetch all data

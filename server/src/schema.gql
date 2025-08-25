@@ -113,6 +113,10 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input ForgotPasswordInput {
+  email: String!
+}
+
 enum InviteStatus {
   ACCEPTED
   EXPIRED
@@ -227,7 +231,7 @@ enum MediaType {
 }
 
 type Mutation {
-  acceptInvite(input: AcceptInviteInput!): User!
+  acceptInvite(input: AcceptInviteInput!): AuthPayload!
   assignLead(id: ID!, userId: ID!): Lead!
   createAmenity(input: CreateAmenityInput!): Amenity!
   createInvite(input: CreateInviteInput!): UserInvite!
@@ -243,11 +247,15 @@ type Mutation {
   deleteMediaAsset(id: ID!): Boolean!
   deleteSiteSettings: Boolean!
   deleteUser(id: ID!): Boolean!
+  forgotPassword(input: ForgotPasswordInput!): Boolean!
   incrementListingViews(id: ID!): Boolean!
   login(input: LoginInput!): AuthPayload!
   reorderMedia(input: ReorderMediaInput!, listingId: ID!): [MediaAsset!]!
   resendInvite(id: ID!): UserInvite!
+  resendVerification: Boolean!
+  resetPassword(input: ResetPasswordInput!): Boolean!
   revokeInvite(id: ID!): UserInvite!
+  sendTestEmail(input: SendTestEmailInput!): SendTestEmailResult!
   toggleAmenityActive(id: ID!): Amenity!
   unassignLead(id: ID!): Lead!
   updateAmenity(id: ID!, input: UpdateAmenityInput!): Amenity!
@@ -257,6 +265,7 @@ type Mutation {
   updateMediaAsset(id: ID!, input: UpdateMediaAssetInput!): MediaAsset!
   updateSiteSettings(input: UpdateSiteSettingInput!): SiteSetting!
   updateUser(id: ID!, input: UpdateUserInput!): User!
+  verifyEmail(input: VerifyEmailInput!): Boolean!
   verifyUserEmail(id: ID!): User!
 }
 
@@ -304,6 +313,11 @@ input ReorderMediaInput {
   mediaIds: [ID!]!
 }
 
+input ResetPasswordInput {
+  password: String!
+  token: String!
+}
+
 input SearchListingsFiltersInput {
   bathrooms: Float
   bedrooms: Float
@@ -311,6 +325,21 @@ input SearchListingsFiltersInput {
   maxPrice: Float
   minPrice: Float
   propertyType: PropertyType
+}
+
+input SendTestEmailInput {
+  html: String
+  subject: String
+  text: String
+  to: String!
+}
+
+type SendTestEmailResult {
+  error: String
+  messageId: String
+  raw: String
+  skipped: Boolean
+  success: Boolean!
 }
 
 type SiteSetting {
@@ -424,4 +453,8 @@ type UserStats {
   adminUsers: Float!
   managerUsers: Float!
   totalUsers: Float!
+}
+
+input VerifyEmailInput {
+  token: String!
 }

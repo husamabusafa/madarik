@@ -48,18 +48,18 @@ const Dashboard: React.FC = () => {
   const leadColumns = [
     { key: 'name', label: 'Contact', render: (value: string, row: any) => (
       <div>
-        <div className="font-medium text-gray-900">{value}</div>
-        <div className="text-sm text-gray-500">{row.email}</div>
+        <div className="font-medium text-slate-100">{value}</div>
+        <div className="text-sm text-slate-400">{row.email}</div>
       </div>
     )},
     { key: 'property', label: 'Property', render: (value: string) => (
-      <div className="text-sm text-gray-900 max-w-xs truncate">{value}</div>
+      <div className="text-sm text-slate-100 max-w-xs truncate">{value}</div>
     )},
     { key: 'status', label: 'Status', render: (value: string) => (
       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-        value === 'New' ? 'bg-blue-100 text-blue-700' :
-        value === 'Contacted' ? 'bg-yellow-100 text-yellow-700' :
-        'bg-green-100 text-green-700'
+        value === 'New' ? 'bg-blue-500/15 text-blue-300' :
+        value === 'Contacted' ? 'bg-amber-500/15 text-amber-300' :
+        'bg-green-500/15 text-green-300'
       }`}>
         {value}
       </span>
@@ -69,17 +69,17 @@ const Dashboard: React.FC = () => {
 
   const propertyColumns = [
     { key: 'title', label: 'Property', render: (value: string) => (
-      <div className="font-medium text-gray-900 max-w-xs truncate">{value}</div>
+      <div className="font-medium text-slate-100 max-w-xs truncate">{value}</div>
     )},
     { key: 'price', label: 'Price', render: (value: string) => (
-      <div className="font-medium text-gray-900">{value}</div>
+      <div className="font-medium text-slate-100">{value}</div>
     )},
     { key: 'type', label: 'Type' },
     { key: 'status', label: 'Status', render: (value: string) => (
       <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-        value === 'Published' ? 'bg-green-100 text-green-700' :
-        value === 'Draft' ? 'bg-gray-100 text-gray-700' :
-        'bg-yellow-100 text-yellow-700'
+        value === 'Published' ? 'bg-green-500/15 text-green-300' :
+        value === 'Draft' ? 'bg-slate-500/15 text-slate-300' :
+        'bg-amber-500/15 text-amber-300'
       }`}>
         {value}
       </span>
@@ -96,10 +96,10 @@ const Dashboard: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-slate-100">
             {t('dashboard.welcomeBack')}, {user?.email?.split('@')[0]}!
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-slate-400">
             {t('dashboard.subtitle')}
           </p>
         </div>
@@ -132,63 +132,63 @@ const Dashboard: React.FC = () => {
       >
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.quickActions')}</h2>
+            <h2 className="text-xl font-semibold text-slate-100">{t('dashboard.quickActions')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Link to="/properties/new">
               <motion.div
-                className="group flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 cursor-pointer"
+                className="group flex items-center justify-between p-4 border border-slate-800 bg-white/5 rounded-lg hover:border-blue-500 hover:bg-blue-500/10 transition-all duration-200 cursor-pointer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center">
-                  <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <Plus className="h-5 w-5 text-blue-600" />
+                  <div className="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition-colors">
+                    <Plus className="h-5 w-5 text-blue-400" />
                   </div>
-                  <div className={isRTL ? 'mr-3' : 'ml-3'}>
-                    <p className="text-sm font-medium text-gray-900">{t('dashboard.addProperty')}</p>
-                    <p className="text-xs text-gray-500">{t('dashboard.addPropertyDesc')}</p>
+                  <div className={clsx(isRTL ? 'mr-3' : 'ml-3')}>
+                    <p className="text-sm font-medium text-slate-100">{t('dashboard.addProperty')}</p>
+                    <p className="text-xs text-slate-400">{t('dashboard.addPropertyDesc')}</p>
                   </div>
                 </div>
-                <ArrowRight className={clsx('h-4 w-4 text-gray-400 group-hover:text-blue-600 transition-colors', isRTL && 'rotate-180')} />
+                <ArrowRight className={clsx('h-4 w-4 text-slate-400 group-hover:text-blue-400 transition-colors', isRTL && 'rotate-180')} />
               </motion.div>
             </Link>
 
             <Link to="/leads">
               <motion.div
-                className="group flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-green-300 hover:bg-green-50 transition-all duration-200 cursor-pointer"
+                className="group flex items-center justify-between p-4 border border-slate-800 bg-white/5 rounded-lg hover:border-green-500 hover:bg-green-500/10 transition-all duration-200 cursor-pointer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center">
-                  <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <MessageSquare className="h-5 w-5 text-green-600" />
+                  <div className="p-2 bg-green-500/20 rounded-lg group-hover:bg-green-500/30 transition-colors">
+                    <MessageSquare className="h-5 w-5 text-green-400" />
                   </div>
-                  <div className={isRTL ? 'mr-3' : 'ml-3'}>
-                    <p className="text-sm font-medium text-gray-900">{t('dashboard.manageLeads')}</p>
-                    <p className="text-xs text-gray-500">{t('dashboard.manageLeadsDesc')}</p>
+                  <div className={clsx(isRTL ? 'mr-3' : 'ml-3')}>
+                    <p className="text-sm font-medium text-slate-100">{t('dashboard.manageLeads')}</p>
+                    <p className="text-xs text-slate-400">{t('dashboard.manageLeadsDesc')}</p>
                   </div>
                 </div>
-                <ArrowRight className={clsx('h-4 w-4 text-gray-400 group-hover:text-green-600 transition-colors', isRTL && 'rotate-180')} />
+                <ArrowRight className={clsx('h-4 w-4 text-slate-400 group-hover:text-green-400 transition-colors', isRTL && 'rotate-180')} />
               </motion.div>
             </Link>
 
             <Link to="/analytics">
               <motion.div
-                className="group flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all duration-200 cursor-pointer"
+                className="group flex items-center justify-between p-4 border border-slate-800 bg-white/5 rounded-lg hover:border-purple-500 hover:bg-purple-500/10 transition-all duration-200 cursor-pointer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center">
-                  <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <BarChart3 className="h-5 w-5 text-purple-600" />
+                  <div className="p-2 bg-purple-500/20 rounded-lg group-hover:bg-purple-500/30 transition-colors">
+                    <BarChart3 className="h-5 w-5 text-purple-400" />
                   </div>
-                  <div className={isRTL ? 'mr-3' : 'ml-3'}>
-                    <p className="text-sm font-medium text-gray-900">{t('dashboard.viewAnalytics')}</p>
-                    <p className="text-xs text-gray-500">{t('dashboard.viewAnalyticsDesc')}</p>
+                  <div className={clsx(isRTL ? 'mr-3' : 'ml-3')}>
+                    <p className="text-sm font-medium text-slate-100">{t('dashboard.viewAnalytics')}</p>
+                    <p className="text-xs text-slate-400">{t('dashboard.viewAnalyticsDesc')}</p>
                   </div>
                 </div>
-                <ArrowRight className={clsx('h-4 w-4 text-gray-400 group-hover:text-purple-600 transition-colors', isRTL && 'rotate-180')} />
+                <ArrowRight className={clsx('h-4 w-4 text-slate-400 group-hover:text-purple-400 transition-colors', isRTL && 'rotate-180')} />
               </motion.div>
             </Link>
           </div>
@@ -205,9 +205,9 @@ const Dashboard: React.FC = () => {
         >
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.recentLeads')}</h3>
+              <h3 className="text-lg font-semibold text-slate-100">{t('dashboard.recentLeads')}</h3>
               <Link to="/leads">
-                <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
+                <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300">
                   {t('common.view')} {t('common.all')}
                   <ArrowRight className={clsx('h-4 w-4', isRTL ? 'mr-2 rotate-180' : 'ml-2')} />
                 </Button>
@@ -229,9 +229,9 @@ const Dashboard: React.FC = () => {
         >
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">{t('dashboard.recentProperties')}</h3>
+              <h3 className="text-lg font-semibold text-slate-100">{t('dashboard.recentProperties')}</h3>
               <Link to="/properties">
-                <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-700">
+                <Button variant="ghost" size="sm" className="text-blue-400 hover:text-blue-300">
                   {t('common.view')} {t('common.all')}
                   <ArrowRight className={clsx('h-4 w-4', isRTL ? 'mr-2 rotate-180' : 'ml-2')} />
                 </Button>
@@ -254,20 +254,20 @@ const Dashboard: React.FC = () => {
       >
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">Performance Overview</h3>
-            <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm">7 days</Button>
-              <Button variant="ghost" size="sm">30 days</Button>
-              <Button variant="outline" size="sm">90 days</Button>
+            <h3 className="text-lg font-semibold text-slate-100">{t('dashboard.performanceOverview')}</h3>
+            <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-2' : 'space-x-2')}>
+              <Button variant="ghost" size="sm">7 {t('dashboard.days')}</Button>
+              <Button variant="ghost" size="sm">30 {t('dashboard.days')}</Button>
+              <Button variant="outline" size="sm">90 {t('dashboard.days')}</Button>
             </div>
           </div>
           
           {/* Chart placeholder */}
-          <div className="h-64 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center">
+          <div className="h-64 bg-gradient-to-br from-slate-800/50 to-slate-700/30 border border-slate-800 rounded-lg flex items-center justify-center">
             <div className="text-center">
               <Activity className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-              <p className="text-gray-600">Performance chart will be displayed here</p>
-              <p className="text-sm text-gray-500 mt-1">Integration with analytics service pending</p>
+              <p className="text-slate-400">{t('dashboard.performanceChart')}</p>
+              <p className="text-sm text-slate-500 mt-1">{t('dashboard.analyticsIntegration')}</p>
             </div>
           </div>
         </Card>

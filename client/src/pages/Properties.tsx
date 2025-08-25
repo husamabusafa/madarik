@@ -7,7 +7,6 @@ import {
   MoreVertical, 
   Edit, 
   Eye, 
-  Trash2, 
   MapPin,
   Bed,
   Bath,
@@ -20,8 +19,11 @@ import Button from '../components/common/Button';
 import Input from '../components/common/Input';
 import Table from '../components/common/Table';
 import { Link } from 'react-router-dom';
+import { useI18n } from '../contexts/I18nContext';
+import { clsx } from 'clsx';
 
 const Properties: React.FC = () => {
+  const { t, isRTL } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
@@ -108,11 +110,11 @@ const Properties: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Published': return 'bg-green-100 text-green-700';
-      case 'Draft': return 'bg-gray-100 text-gray-700';
-      case 'Ready to Publish': return 'bg-yellow-100 text-yellow-700';
-      case 'Archived': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'Published': return 'bg-green-500/15 text-green-300';
+      case 'Draft': return 'bg-slate-500/15 text-slate-300';
+      case 'Ready to Publish': return 'bg-amber-500/15 text-amber-300';
+      case 'Archived': return 'bg-red-500/15 text-red-300';
+      default: return 'bg-slate-500/15 text-slate-300';
     }
   };
 
@@ -128,18 +130,18 @@ const Properties: React.FC = () => {
   const columns = [
     {
       key: 'title',
-      label: 'Property',
-      render: (value: string, row: any) => (
-        <div className="flex items-center space-x-3">
+      label: t('properties.property'),
+              render: (value: string, row: any) => (
+        <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-3' : 'space-x-3')}>
           <img
             src={row.image}
             alt={value}
             className="h-12 w-16 object-cover rounded-lg"
           />
           <div>
-            <div className="font-medium text-gray-900">{value}</div>
-            <div className="text-sm text-gray-500 flex items-center">
-              <MapPin className="h-3 w-3 mr-1" />
+            <div className="font-medium text-slate-100">{value}</div>
+            <div className="text-sm text-slate-400 flex items-center">
+              <MapPin className={clsx('h-3 w-3', isRTL ? 'ml-1' : 'mr-1')} />
               {row.location}
             </div>
           </div>
@@ -148,37 +150,37 @@ const Properties: React.FC = () => {
     },
     {
       key: 'price',
-      label: 'Price',
+      label: t('properties.price'),
       render: (value: number, row: any) => (
-        <div className="font-medium text-gray-900">
+        <div className="font-medium text-slate-100">
           {formatPrice(value, row.currency)}
         </div>
       )
     },
     {
       key: 'type',
-      label: 'Type',
+      label: t('properties.type'),
       render: (value: string) => (
-        <span className="text-sm text-gray-600">{value}</span>
+        <span className="text-sm text-slate-400">{value}</span>
       )
     },
     {
       key: 'bedrooms',
-      label: 'Details',
+      label: t('properties.details'),
       render: (bedrooms: number, row: any) => (
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
+        <div className={clsx('flex items-center text-sm text-slate-400', isRTL ? 'space-x-reverse space-x-4' : 'space-x-4')}>
           {bedrooms > 0 && (
             <div className="flex items-center">
-              <Bed className="h-4 w-4 mr-1" />
+              <Bed className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
               {bedrooms}
             </div>
           )}
           <div className="flex items-center">
-            <Bath className="h-4 w-4 mr-1" />
+            <Bath className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
             {row.bathrooms}
           </div>
           <div className="flex items-center">
-            <Square className="h-4 w-4 mr-1" />
+            <Square className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
             {row.area} {row.areaUnit}
           </div>
         </div>
@@ -186,7 +188,7 @@ const Properties: React.FC = () => {
     },
     {
       key: 'status',
-      label: 'Status',
+      label: t('properties.status'),
       render: (value: string) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(value)}`}>
           {value}
@@ -195,19 +197,19 @@ const Properties: React.FC = () => {
     },
     {
       key: 'views',
-      label: 'Performance',
-      render: (views: number, row: any) => (
+      label: t('properties.performance'),
+              render: (views: number, row: any) => (
         <div className="text-sm">
-          <div className="text-gray-900">{views} views</div>
-          <div className="text-gray-500">{row.leads} leads</div>
+          <div className="text-slate-100">{views} {t('properties.views')}</div>
+          <div className="text-slate-400">{row.leads} {t('properties.leads')}</div>
         </div>
       )
     },
     {
       key: 'actions',
-      label: 'Actions',
-      render: (value: any, row: any) => (
-        <div className="flex items-center space-x-2">
+      label: t('properties.actions'),
+              render: () => (
+        <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-2' : 'space-x-2')}>
           <Button variant="ghost" size="sm">
             <Eye className="h-4 w-4" />
           </Button>
@@ -224,7 +226,7 @@ const Properties: React.FC = () => {
 
   const PropertyCard = ({ property }: { property: any }) => (
     <motion.div
-      className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200"
+      className="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden hover:shadow-md transition-shadow duration-200"
       whileHover={{ y: -2 }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -241,8 +243,8 @@ const Properties: React.FC = () => {
           </span>
         </div>
         <div className="absolute top-3 right-3">
-          <div className="bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1">
-            <span className="text-sm font-semibold text-gray-900">
+          <div className="bg-slate-900/80 border border-slate-700 backdrop-blur-sm rounded-lg px-2 py-1">
+            <span className="text-sm font-semibold text-slate-100">
               {formatPrice(property.price, property.currency)}
             </span>
           </div>
@@ -250,36 +252,36 @@ const Properties: React.FC = () => {
       </div>
       
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-2">{property.title}</h3>
-        <p className="text-sm text-gray-600 mb-3 flex items-center">
-          <MapPin className="h-4 w-4 mr-1" />
+        <h3 className="font-semibold text-slate-100 mb-2">{property.title}</h3>
+        <p className="text-sm text-slate-400 mb-3 flex items-center">
+          <MapPin className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
           {property.location}
         </p>
         
-        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
-          <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between text-sm text-slate-400 mb-4">
+          <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-3' : 'space-x-3')}>
             {property.bedrooms > 0 && (
               <div className="flex items-center">
-                <Bed className="h-4 w-4 mr-1" />
+                <Bed className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
                 {property.bedrooms}
               </div>
             )}
             <div className="flex items-center">
-              <Bath className="h-4 w-4 mr-1" />
+              <Bath className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
               {property.bathrooms}
             </div>
             <div className="flex items-center">
-              <Square className="h-4 w-4 mr-1" />
+              <Square className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
               {property.area} {property.areaUnit}
             </div>
           </div>
         </div>
         
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="text-sm text-gray-500">
-            {property.views} views • {property.leads} leads
+        <div className="flex items-center justify-between pt-3 border-t border-slate-800">
+          <div className="text-sm text-slate-400">
+            {property.views} {t('properties.views')} • {property.leads} {t('properties.leads')}
           </div>
-          <div className="flex items-center space-x-1">
+          <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-1' : 'space-x-1')}>
             <Button variant="ghost" size="sm">
               <Eye className="h-4 w-4" />
             </Button>
@@ -305,15 +307,15 @@ const Properties: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
-          <p className="mt-2 text-gray-600">
-            Manage your real estate listings and track their performance.
+          <h1 className="text-3xl font-bold text-slate-100">{t('properties.title')}</h1>
+          <p className="mt-2 text-slate-400">
+            {t('properties.subtitle')}
           </p>
         </div>
         <Link to="/properties/new">
           <Button size="lg">
-            <Plus className="h-5 w-5 mr-2" />
-            Add Property
+            <Plus className={clsx('h-5 w-5', isRTL ? 'ml-2' : 'mr-2')} />
+            {t('properties.addProperty')}
           </Button>
         </Link>
       </motion.div>
@@ -328,54 +330,58 @@ const Properties: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className={clsx('absolute top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400', isRTL ? 'right-3' : 'left-3')} />
                 <Input
-                  placeholder="Search properties..."
+                  placeholder={t('properties.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className={isRTL ? 'pr-10' : 'pl-10'}
                 />
               </div>
               
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="all">All Status</option>
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
-                <option value="ready">Ready to Publish</option>
-                <option value="archived">Archived</option>
+                <option value="all">{t('properties.allStatus')}</option>
+                <option value="published">{t('properties.published')}</option>
+                <option value="draft">{t('properties.draft')}</option>
+                <option value="ready">{t('properties.readyToPublish')}</option>
+                <option value="archived">{t('properties.archived')}</option>
               </select>
             </div>
             
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                More Filters
+                <Filter className={clsx('h-4 w-4', isRTL ? 'ml-2' : 'mr-2')} />
+                {t('properties.moreFilters')}
               </Button>
               
-              <div className="flex items-center border border-gray-300 rounded-lg">
+              <div className="flex items-center border border-slate-800 rounded-lg">
                 <button
                   onClick={() => setViewMode('table')}
-                  className={`px-3 py-2 text-sm rounded-l-lg transition-colors ${
+                  className={clsx(
+                    'px-3 py-2 text-sm transition-colors',
+                    isRTL ? 'rounded-r-lg' : 'rounded-l-lg',
                     viewMode === 'table' 
                       ? 'bg-blue-600 text-white' 
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                      : 'text-slate-400 hover:bg-white/5'
+                  )}
                 >
-                  Table
+                  {t('properties.table')}
                 </button>
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`px-3 py-2 text-sm rounded-r-lg transition-colors ${
+                  className={clsx(
+                    'px-3 py-2 text-sm transition-colors',
+                    isRTL ? 'rounded-l-lg' : 'rounded-r-lg',
                     viewMode === 'grid' 
                       ? 'bg-blue-600 text-white' 
-                      : 'text-gray-600 hover:bg-gray-50'
-                  }`}
+                      : 'text-slate-400 hover:bg-white/5'
+                  )}
                 >
-                  Grid
+                  {t('properties.grid')}
                 </button>
               </div>
             </div>
@@ -412,48 +418,48 @@ const Properties: React.FC = () => {
       >
         <Card className="p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <DollarSign className="h-6 w-6 text-blue-600" />
+            <div className="p-3 bg-blue-500/20 rounded-lg">
+              <DollarSign className="h-6 w-6 text-blue-400" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">Total Value</p>
-              <p className="text-2xl font-bold text-gray-900">$5.5M</p>
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="p-6">
-          <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <Eye className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">Total Views</p>
-              <p className="text-2xl font-bold text-gray-900">635</p>
+            <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
+              <p className="text-sm text-slate-400">{t('properties.totalValue')}</p>
+              <p className="text-2xl font-bold text-slate-100">$5.5M</p>
             </div>
           </div>
         </Card>
         
         <Card className="p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <MapPin className="h-6 w-6 text-purple-600" />
+            <div className="p-3 bg-green-500/20 rounded-lg">
+              <Eye className="h-6 w-6 text-green-400" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">Locations</p>
-              <p className="text-2xl font-bold text-gray-900">12</p>
+            <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
+              <p className="text-sm text-slate-400">{t('properties.totalViews')}</p>
+              <p className="text-2xl font-bold text-slate-100">635</p>
             </div>
           </div>
         </Card>
         
         <Card className="p-6">
           <div className="flex items-center">
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <Calendar className="h-6 w-6 text-orange-600" />
+            <div className="p-3 bg-purple-500/20 rounded-lg">
+              <MapPin className="h-6 w-6 text-purple-400" />
             </div>
-            <div className="ml-4">
-              <p className="text-sm text-gray-500">This Month</p>
-              <p className="text-2xl font-bold text-gray-900">8</p>
+            <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
+              <p className="text-sm text-slate-400">{t('properties.locations')}</p>
+              <p className="text-2xl font-bold text-slate-100">12</p>
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center">
+            <div className="p-3 bg-orange-500/20 rounded-lg">
+              <Calendar className="h-6 w-6 text-orange-400" />
+            </div>
+            <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
+              <p className="text-sm text-slate-400">{t('properties.thisMonth')}</p>
+              <p className="text-2xl font-bold text-slate-100">8</p>
             </div>
           </div>
         </Card>

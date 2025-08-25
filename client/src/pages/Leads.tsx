@@ -10,7 +10,6 @@ import {
   Phone, 
   MessageSquare, 
   Calendar,
-  MapPin,
   Star,
   Eye,
   UserCheck,
@@ -141,22 +140,22 @@ const Leads: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'New': return 'bg-blue-100 text-blue-700';
-      case 'Contacted': return 'bg-yellow-100 text-yellow-700';
-      case 'Scheduled': return 'bg-purple-100 text-purple-700';
-      case 'Qualified': return 'bg-indigo-100 text-indigo-700';
-      case 'Closed Won': return 'bg-green-100 text-green-700';
-      case 'Closed Lost': return 'bg-red-100 text-red-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'New': return 'bg-blue-500/15 text-blue-300';
+      case 'Contacted': return 'bg-amber-500/15 text-amber-300';
+      case 'Scheduled': return 'bg-purple-500/15 text-purple-300';
+      case 'Qualified': return 'bg-indigo-500/15 text-indigo-300';
+      case 'Closed Won': return 'bg-green-500/15 text-green-300';
+      case 'Closed Lost': return 'bg-red-500/15 text-red-300';
+      default: return 'bg-slate-500/15 text-slate-300';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'High': return 'text-red-600 bg-red-50';
-      case 'Medium': return 'text-yellow-600 bg-yellow-50';
-      case 'Low': return 'text-green-600 bg-green-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'High': return 'text-red-300 bg-red-500/15';
+      case 'Medium': return 'text-amber-300 bg-amber-500/15';
+      case 'Low': return 'text-green-300 bg-green-500/15';
+      default: return 'text-slate-300 bg-slate-500/15';
     }
   };
 
@@ -176,18 +175,18 @@ const Leads: React.FC = () => {
       render: (value: string, row: any) => (
         <div className="flex items-center space-x-3">
           <div className="flex-shrink-0">
-            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-              <User className="h-5 w-5 text-gray-600" />
+            <div className="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center">
+              <User className="h-5 w-5 text-slate-300" />
             </div>
           </div>
           <div>
-            <div className="font-medium text-gray-900">{value}</div>
-            <div className="text-sm text-gray-500 flex items-center">
+            <div className="font-medium text-slate-100">{value}</div>
+            <div className="text-sm text-slate-400 flex items-center">
               <Mail className="h-3 w-3 mr-1" />
               {row.email}
             </div>
             {row.phone && (
-              <div className="text-sm text-gray-500 flex items-center">
+              <div className="text-sm text-slate-400 flex items-center">
                 <Phone className="h-3 w-3 mr-1" />
                 {row.phone}
               </div>
@@ -207,8 +206,8 @@ const Leads: React.FC = () => {
             className="h-10 w-10 object-cover rounded-lg"
           />
           <div>
-            <div className="font-medium text-gray-900 max-w-xs truncate">{value.title}</div>
-            <div className="text-sm text-gray-500">{value.price}</div>
+            <div className="font-medium text-slate-100 max-w-xs truncate">{value.title}</div>
+            <div className="text-sm text-slate-400">{value.price}</div>
           </div>
         </div>
       )
@@ -217,7 +216,7 @@ const Leads: React.FC = () => {
       key: 'status',
       label: 'Status',
       render: (value: string, row: any) => (
-        <div className="space-y-1">
+        <div className="flex flex-wrap items-center gap-2">
           <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(value)}`}>
             {value}
           </span>
@@ -233,12 +232,12 @@ const Leads: React.FC = () => {
       render: (value: string | null) => (
         <div className="text-sm">
           {value ? (
-            <div className="flex items-center text-gray-900">
-              <UserCheck className="h-4 w-4 mr-1 text-green-500" />
+            <div className="flex items-center text-slate-100">
+              <UserCheck className="h-4 w-4 mr-1 text-green-400" />
               {value}
             </div>
           ) : (
-            <span className="text-gray-500">Unassigned</span>
+            <span className="text-slate-500">Unassigned</span>
           )}
         </div>
       )
@@ -248,8 +247,8 @@ const Leads: React.FC = () => {
       label: 'Created',
       render: (value: string, row: any) => (
         <div className="text-sm">
-          <div className="text-gray-900">{formatDate(value)}</div>
-          <div className="text-gray-500 text-xs">
+          <div className="text-slate-100">{formatDate(value)}</div>
+          <div className="text-slate-400 text-xs">
             {row.lastContact ? `Last: ${formatDate(row.lastContact)}` : 'No contact yet'}
           </div>
         </div>
@@ -259,13 +258,13 @@ const Leads: React.FC = () => {
       key: 'source',
       label: 'Source',
       render: (value: string) => (
-        <span className="text-sm text-gray-600">{value}</span>
+        <span className="text-sm text-slate-400">{value}</span>
       )
     },
     {
       key: 'actions',
       label: 'Actions',
-      render: (value: any, row: any) => (
+      render: () => (
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="sm" title="View Details">
             <Eye className="h-4 w-4" />
@@ -291,8 +290,8 @@ const Leads: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Leads</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold text-slate-100">Leads</h1>
+          <p className="mt-2 text-slate-400">
             Manage and track your property inquiries and potential customers.
           </p>
         </div>
@@ -337,7 +336,7 @@ const Leads: React.FC = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   placeholder="Search leads by name, email, or property..."
                   value={searchTerm}
@@ -349,7 +348,7 @@ const Leads: React.FC = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">All Status</option>
                 <option value="new">New</option>
@@ -363,7 +362,7 @@ const Leads: React.FC = () => {
               <select
                 value={assigneeFilter}
                 onChange={(e) => setAssigneeFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">All Assignees</option>
                 <option value="unassigned">Unassigned</option>
@@ -412,25 +411,12 @@ const Leads: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">This Week</p>
-              <p className="text-2xl font-bold text-gray-900">18 new leads</p>
-              <p className="text-sm text-green-600 mt-1">↗ 23% from last week</p>
+              <p className="text-sm font-medium text-slate-400">This Week</p>
+              <p className="text-2xl font-bold text-slate-100">18 new leads</p>
+              <p className="text-sm text-green-400 mt-1">↗ 23% from last week</p>
             </div>
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <MessageSquare className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </Card>
-        
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500">Response Rate</p>
-              <p className="text-2xl font-bold text-gray-900">85%</p>
-              <p className="text-sm text-green-600 mt-1">↗ 5% improvement</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
+            <div className="p-3 bg-blue-500/20 rounded-lg">
+              <MessageSquare className="h-6 w-6 text-blue-400" />
             </div>
           </div>
         </Card>
@@ -438,12 +424,25 @@ const Leads: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Avg Deal Size</p>
-              <p className="text-2xl font-bold text-gray-900">$1.2M</p>
-              <p className="text-sm text-purple-600 mt-1">→ Stable trend</p>
+              <p className="text-sm font-medium text-slate-400">Response Rate</p>
+              <p className="text-2xl font-bold text-slate-100">85%</p>
+              <p className="text-sm text-green-400 mt-1">↗ 5% improvement</p>
             </div>
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Star className="h-6 w-6 text-purple-600" />
+            <div className="p-3 bg-green-500/20 rounded-lg">
+              <CheckCircle className="h-6 w-6 text-green-400" />
+            </div>
+          </div>
+        </Card>
+        
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-400">Avg Deal Size</p>
+              <p className="text-2xl font-bold text-slate-100">$1.2M</p>
+              <p className="text-sm text-purple-400 mt-1">→ Stable trend</p>
+            </div>
+            <div className="p-3 bg-purple-500/20 rounded-lg">
+              <Star className="h-6 w-6 text-purple-400" />
             </div>
           </div>
         </Card>

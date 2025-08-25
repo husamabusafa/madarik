@@ -3,6 +3,7 @@ import { UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User, UserStats, CreateUserInput, UpdateUserInput } from './dto/user.dto';
 import { CurrentUser } from '../common/decorators/auth.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -24,6 +25,7 @@ export class UsersResolver {
   }
 
   @Query(() => User, { nullable: true })
+  @UseGuards(JwtAuthGuard)
   async me(@CurrentUser() user: User): Promise<User | null> {
     return user || null;
   }

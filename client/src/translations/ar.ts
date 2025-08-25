@@ -3,6 +3,7 @@ export const arTranslations = {
   'app.title': 'مدارك العقارية - منصة إدارة العقارات',
   'app.name': 'مدارك',
   'app.companyName': 'مدارك العقارية',
+  'app.description': 'منصة إدارة عقارات متطورة للمحترفين',
 
   // Navigation
   'nav.dashboard': 'لوحة التحكم',
@@ -42,6 +43,7 @@ export const arTranslations = {
   'auth.verifyEmailSubtitle': 'قمنا بإرسال رابط تأكيد إلى بريدك الإلكتروني',
   'auth.resendVerification': 'إعادة إرسال رسالة التأكيد',
   'auth.noAccount': 'ليس لديك حساب؟',
+  'auth.hasAccount': 'لديك حساب بالفعل؟',
 
   // Common actions
   'common.loading': 'جاري التحميل...',
@@ -113,6 +115,9 @@ export const arTranslations = {
   'dashboard.responseRateDesc': 'تحسن',
   'dashboard.avgDealSize': 'متوسط حجم الصفقة',
   'dashboard.stableTrend': 'اتجاه مستقر',
+  'dashboard.days': 'أيام',
+  'dashboard.performanceChart': 'سيتم عرض مخطط الأداء هنا',
+  'dashboard.analyticsIntegration': 'تكامل مع خدمة التحليلات معلق',
 
   // Properties
   'properties.title': 'العقارات',
@@ -276,7 +281,6 @@ export const arTranslations = {
   'content.lastModified': 'آخر تعديل',
   'content.actions': 'الإجراءات',
   'content.totalPages': 'إجمالي الصفحات',
-  'content.published': 'منشور',
   'content.totalViews': 'إجمالي المشاهدات',
   'content.thisMonth': 'هذا الشهر',
   'content.quickTemplates': 'قوالب سريعة',
