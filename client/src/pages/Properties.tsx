@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { useLazyQuery, useQuery } from '@apollo/client/react';
 import { 
   Plus, 
   Search, 
@@ -21,167 +22,132 @@ import Table from '../components/common/Table';
 import { Link } from 'react-router-dom';
 import { useI18n } from '../contexts/I18nContext';
 import { clsx } from 'clsx';
+import { GET_LISTINGS, SEARCH_LISTINGS } from '../lib/graphql/queries';
 
 const Properties: React.FC = () => {
-  const { t, isRTL } = useI18n();
+  const { t, isRTL, locale } = useI18n() as any;
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('table');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'price'>('createdAt');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
-  // Mock data
-  const properties = [
-    {
-      id: 1,
-      title: 'Luxury Villa in Jumeirah',
-      titleAr: 'فيلا فاخرة في جميرا',
-      price: 2500000,
-      currency: 'USD',
-      type: 'Villa',
-      bedrooms: 5,
-      bathrooms: 6,
-      area: 450,
-      areaUnit: 'SQM',
-      status: 'Published',
-      location: 'Jumeirah, Dubai',
-      image: 'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400',
-      views: 234,
-      leads: 12,
-      createdAt: '2024-01-15',
-      lastEdited: '2024-01-20'
-    },
-    {
-      id: 2,
-      title: 'Modern Apartment in Marina',
-      titleAr: 'شقة حديثة في مارينا',
-      price: 850000,
-      currency: 'USD',
-      type: 'Apartment',
-      bedrooms: 2,
-      bathrooms: 2,
-      area: 120,
-      areaUnit: 'SQM',
-      status: 'Published',
-      location: 'Dubai Marina, Dubai',
-      image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400',
-      views: 189,
-      leads: 8,
-      createdAt: '2024-01-10',
-      lastEdited: '2024-01-18'
-    },
-    {
-      id: 3,
-      title: 'Office Space Downtown',
-      titleAr: 'مساحة مكتبية وسط المدينة',
-      price: 1200000,
-      currency: 'USD',
-      type: 'Commercial',
-      bedrooms: 0,
-      bathrooms: 2,
-      area: 200,
-      areaUnit: 'SQM',
-      status: 'Draft',
-      location: 'Downtown Dubai, Dubai',
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=400',
-      views: 67,
-      leads: 3,
-      createdAt: '2024-01-12',
-      lastEdited: '2024-01-22'
-    },
-    {
-      id: 4,
-      title: 'Family House in Mirdif',
-      titleAr: 'بيت عائلي في مردف',
-      price: 950000,
-      currency: 'USD',
-      type: 'House',
-      bedrooms: 4,
-      bathrooms: 3,
-      area: 280,
-      areaUnit: 'SQM',
-      status: 'Ready to Publish',
-      location: 'Mirdif, Dubai',
-      image: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400',
-      views: 145,
-      leads: 6,
-      createdAt: '2024-01-08',
-      lastEdited: '2024-01-19'
-    }
-  ];
+  // GraphQL: Fetch listings (default)
+  const { data, loading, error, refetch } = useQuery<{ listings: any[] }>(GET_LISTINGS);
+  // GraphQL: Server-side search
+  const [runSearch, { data: searchData, loading: searchLoading, error: searchError }] = useLazyQuery<{ searchListings: any[] }>(SEARCH_LISTINGS, { fetchPolicy: 'network-only' });
+
+  // Debounce searchTerm for server-side search
+  const debounceRef = useRef<number | null>(null);
+  useEffect(() => {
+    const q = searchTerm.trim();
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => {
+      if (q.length >= 2) {
+        runSearch({ variables: { query: q } });
+      }
+    }, 350);
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    };
+  }, [searchTerm, runSearch]);
+
+  // Choose data source: use search results when query active, else default listings
+  const baseListings = useMemo(() => {
+    const q = searchTerm.trim();
+    if (q.length >= 2) return searchData?.searchListings ?? [];
+    return data?.listings ?? [];
+  }, [data, searchData, searchTerm]);
+
+  // Helpers to read localized title and address
+  const getLocalizedTrans = (row: any) => {
+    const desired = row.translations?.find((tr: any) => tr.locale === locale);
+    return desired || row.translations?.[0] || null;
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Published': return 'bg-green-500/15 text-green-300';
-      case 'Draft': return 'bg-slate-500/15 text-slate-300';
-      case 'Ready to Publish': return 'bg-amber-500/15 text-amber-300';
-      case 'Archived': return 'bg-red-500/15 text-red-300';
+      case 'PUBLISHED': return 'bg-green-500/15 text-green-300';
+      case 'DRAFT': return 'bg-slate-500/15 text-slate-300';
+      case 'READY_TO_PUBLISH': return 'bg-amber-500/15 text-amber-300';
+      case 'ARCHIVED': return 'bg-red-500/15 text-red-300';
       default: return 'bg-slate-500/15 text-slate-300';
     }
   };
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (price: string | null | undefined, currency?: string | null) => {
+    if (!price) return '-';
+    const numeric = Number(price);
+    if (Number.isNaN(numeric)) return price;
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: currency,
+      currency: currency || 'USD',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
-    }).format(price);
+    }).format(numeric);
   };
 
   const columns = [
     {
       key: 'title',
       label: t('properties.property'),
-              render: (value: string, row: any) => (
+      render: (_: string, row: any) => {
+        const tr = getLocalizedTrans(row);
+        const title = tr?.title || row.addressLine;
+        const loc = tr?.displayAddressLine || `${row.addressLine}, ${row.city}`;
+        const img = row.primaryPhotoUrl || 'https://via.placeholder.com/320x180?text=Listing';
+        return (
         <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-3' : 'space-x-3')}>
           <img
-            src={row.image}
-            alt={value}
+            src={img}
+            alt={title}
             className="h-12 w-16 object-cover rounded-lg"
           />
           <div>
-            <div className="font-medium text-slate-100">{value}</div>
+            <div className="font-medium text-slate-100">{title}</div>
             <div className="text-sm text-slate-400 flex items-center">
               <MapPin className={clsx('h-3 w-3', isRTL ? 'ml-1' : 'mr-1')} />
-              {row.location}
+              {loc}
             </div>
           </div>
         </div>
-      )
+        );
+      }
     },
     {
       key: 'price',
       label: t('properties.price'),
-      render: (value: number, row: any) => (
+      render: (_: any, row: any) => (
         <div className="font-medium text-slate-100">
-          {formatPrice(value, row.currency)}
+          {formatPrice(row.price, row.currency)}
         </div>
       )
     },
     {
-      key: 'type',
+      key: 'propertyType',
       label: t('properties.type'),
       render: (value: string) => (
         <span className="text-sm text-slate-400">{value}</span>
       )
     },
     {
-      key: 'bedrooms',
+      key: 'specs',
       label: t('properties.details'),
-      render: (bedrooms: number, row: any) => (
+      render: (_: any, row: any) => (
         <div className={clsx('flex items-center text-sm text-slate-400', isRTL ? 'space-x-reverse space-x-4' : 'space-x-4')}>
-          {bedrooms > 0 && (
+          {row.bedrooms > 0 && (
             <div className="flex items-center">
               <Bed className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
-              {bedrooms}
+              {row.bedrooms}
             </div>
           )}
           <div className="flex items-center">
             <Bath className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
-            {row.bathrooms}
+            {row.bathrooms ?? 0}
           </div>
           <div className="flex items-center">
             <Square className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
-            {row.area} {row.areaUnit}
+            {row.areaValue ? Number(row.areaValue) : '-'} {row.areaUnit || ''}
           </div>
         </div>
       )
@@ -191,24 +157,14 @@ const Properties: React.FC = () => {
       label: t('properties.status'),
       render: (value: string) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(value)}`}>
-          {value}
+          {value.replace(/_/g, ' ').toLowerCase().replace(/(^|\s)\S/g, (s: string) => s.toUpperCase())}
         </span>
-      )
-    },
-    {
-      key: 'views',
-      label: t('properties.performance'),
-              render: (views: number, row: any) => (
-        <div className="text-sm">
-          <div className="text-slate-100">{views} {t('properties.views')}</div>
-          <div className="text-slate-400">{row.leads} {t('properties.leads')}</div>
-        </div>
       )
     },
     {
       key: 'actions',
       label: t('properties.actions'),
-              render: () => (
+      render: () => (
         <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-2' : 'space-x-2')}>
           <Button variant="ghost" size="sm">
             <Eye className="h-4 w-4" />
@@ -233,13 +189,13 @@ const Properties: React.FC = () => {
     >
       <div className="relative">
         <img
-          src={property.image}
-          alt={property.title}
+          src={property.primaryPhotoUrl || 'https://via.placeholder.com/800x400?text=Listing'}
+          alt={getLocalizedTrans(property)?.title || property.addressLine}
           className="w-full h-48 object-cover"
         />
         <div className="absolute top-3 left-3">
           <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(property.status)}`}>
-            {property.status}
+            {property.status.replace(/_/g, ' ').toLowerCase().replace(/(^|\s)\S/g, (s: string) => s.toUpperCase())}
           </span>
         </div>
         <div className="absolute top-3 right-3">
@@ -252,10 +208,10 @@ const Properties: React.FC = () => {
       </div>
       
       <div className="p-4">
-        <h3 className="font-semibold text-slate-100 mb-2">{property.title}</h3>
+        <h3 className="font-semibold text-slate-100 mb-2">{getLocalizedTrans(property)?.title || property.addressLine}</h3>
         <p className="text-sm text-slate-400 mb-3 flex items-center">
           <MapPin className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
-          {property.location}
+          {getLocalizedTrans(property)?.displayAddressLine || `${property.addressLine}, ${property.city}`}
         </p>
         
         <div className="flex items-center justify-between text-sm text-slate-400 mb-4">
@@ -268,19 +224,17 @@ const Properties: React.FC = () => {
             )}
             <div className="flex items-center">
               <Bath className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
-              {property.bathrooms}
+              {property.bathrooms ?? 0}
             </div>
             <div className="flex items-center">
               <Square className={clsx('h-4 w-4', isRTL ? 'ml-1' : 'mr-1')} />
-              {property.area} {property.areaUnit}
+              {property.areaValue ? Number(property.areaValue) : '-'} {property.areaUnit || ''}
             </div>
           </div>
         </div>
         
         <div className="flex items-center justify-between pt-3 border-t border-slate-800">
-          <div className="text-sm text-slate-400">
-            {property.views} {t('properties.views')} • {property.leads} {t('properties.leads')}
-          </div>
+          <div className="text-sm text-slate-500">&nbsp;</div>
           <div className={clsx('flex items-center', isRTL ? 'space-x-reverse space-x-1' : 'space-x-1')}>
             <Button variant="ghost" size="sm">
               <Eye className="h-4 w-4" />
@@ -338,26 +292,45 @@ const Properties: React.FC = () => {
                   className={isRTL ? 'pr-10' : 'pl-10'}
                 />
               </div>
-              
+
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 className="px-3 py-2 border border-slate-700 bg-slate-900 text-slate-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="all">{t('properties.allStatus')}</option>
-                <option value="published">{t('properties.published')}</option>
-                <option value="draft">{t('properties.draft')}</option>
-                <option value="ready">{t('properties.readyToPublish')}</option>
-                <option value="archived">{t('properties.archived')}</option>
+                <option value="PUBLISHED">{t('properties.published')}</option>
+                <option value="DRAFT">{t('properties.draft')}</option>
+                <option value="READY_TO_PUBLISH">{t('properties.readyToPublish')}</option>
+                <option value="ARCHIVED">{t('properties.archived')}</option>
               </select>
             </div>
-            
+
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => refetch()}>
                 <Filter className={clsx('h-4 w-4', isRTL ? 'ml-2' : 'mr-2')} />
                 {t('properties.moreFilters')}
               </Button>
-              
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="px-3 py-2 border border-slate-800 bg-slate-900 text-slate-100 rounded-lg text-sm"
+                >
+                  <option value="createdAt">{t('properties.sortCreated') || 'Sort: Created'}</option>
+                  <option value="price">{t('properties.sortPrice') || 'Sort: Price'}</option>
+                </select>
+                <button
+                  type="button"
+                  onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
+                  className="px-3 py-2 border border-slate-800 bg-slate-900 text-slate-100 rounded-lg text-sm hover:bg-white/5"
+                  title={sortDir === 'asc' ? 'Ascending' : 'Descending'}
+                >
+                  {sortDir === 'asc' ? 'Asc' : 'Desc'}
+                </button>
+              </div>
+
               <div className="flex items-center border border-slate-800 rounded-lg">
                 <button
                   onClick={() => setViewMode('table')}
@@ -395,17 +368,88 @@ const Properties: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        {viewMode === 'table' ? (
-          <Table
-            data={properties}
-            columns={columns}
-          />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
-              <PropertyCard key={property.id} property={property} />
-            ))}
+        {(loading || searchLoading) && (
+          <div className="flex items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           </div>
+        )}
+        {(error || searchError) && (
+          <div className="p-6 text-red-400 bg-red-500/10 border border-red-500/30 rounded-lg">
+            {(error || searchError)?.message}
+          </div>
+        )}
+        {!loading && !searchLoading && !error && !searchError && (
+          <>
+            {viewMode === 'table' ? (
+              <Table
+                data={baseListings
+                  .filter((row: any) => {
+                    const tr = getLocalizedTrans(row);
+                    const title = (tr?.title || row.addressLine || '').toLowerCase();
+                    const q = searchTerm.toLowerCase();
+                    const statusOk = statusFilter === 'all' || row.status === statusFilter;
+                    const match = q.length >= 2 ? true : title.includes(q);
+                    return match && statusOk;
+                  })
+                  .sort((a: any, b: any) => {
+                    let av: number = 0;
+                    let bv: number = 0;
+                    if (sortBy === 'price') {
+                      av = Number(a.price) || 0;
+                      bv = Number(b.price) || 0;
+                    } else {
+                      av = new Date(a.createdAt).getTime();
+                      bv = new Date(b.createdAt).getTime();
+                    }
+                    return sortDir === 'asc' ? av - bv : bv - av;
+                  })
+                }
+                columns={columns}
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {baseListings
+                  .filter((row: any) => {
+                    const tr = getLocalizedTrans(row);
+                    const title = (tr?.title || row.addressLine || '').toLowerCase();
+                    const q = searchTerm.toLowerCase();
+                    const statusOk = statusFilter === 'all' || row.status === statusFilter;
+                    const match = q.length >= 2 ? true : title.includes(q);
+                    return match && statusOk;
+                  })
+                  .sort((a: any, b: any) => {
+                    let av: number = 0;
+                    let bv: number = 0;
+                    if (sortBy === 'price') {
+                      av = Number(a.price) || 0;
+                      bv = Number(b.price) || 0;
+                    } else {
+                      av = new Date(a.createdAt).getTime();
+                      bv = new Date(b.createdAt).getTime();
+                    }
+                    return sortDir === 'asc' ? av - bv : bv - av;
+                  })
+                  .map((property: any) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </div>
+            )}
+            {baseListings.length === 0 && (
+              <Card className="p-12 mt-6 text-center">
+                <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-slate-800 flex items-center justify-center">
+                  <Plus className="h-8 w-8 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-100 mb-2">{t('properties.emptyTitle') || 'No properties yet'}</h3>
+                <p className="text-slate-400 mb-6">{t('properties.emptyDesc') || 'Get started by creating your first property listing. You can add photos, details, and translations.'}</p>
+                <Link to="/properties/new">
+                  <Button size="lg">
+                    <Plus className={clsx('h-5 w-5', isRTL ? 'ml-2' : 'mr-2')} />
+                    {t('properties.addFirstProperty') || 'Add your first property'}
+                  </Button>
+                </Link>
+              </Card>
+            )}
+          </>
         )}
       </motion.div>
 
@@ -423,7 +467,12 @@ const Properties: React.FC = () => {
             </div>
             <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
               <p className="text-sm text-slate-400">{t('properties.totalValue')}</p>
-              <p className="text-2xl font-bold text-slate-100">$5.5M</p>
+              <p className="text-2xl font-bold text-slate-100">
+                {(() => {
+                  const total = baseListings.reduce((sum: number, l: any) => sum + (Number(l.price) || 0), 0);
+                  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(total);
+                })()}
+              </p>
             </div>
           </div>
         </Card>
@@ -434,8 +483,8 @@ const Properties: React.FC = () => {
               <Eye className="h-6 w-6 text-green-400" />
             </div>
             <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
-              <p className="text-sm text-slate-400">{t('properties.totalViews')}</p>
-              <p className="text-2xl font-bold text-slate-100">635</p>
+              <p className="text-sm text-slate-400">{t('properties.totalListings') || 'Total Listings'}</p>
+              <p className="text-2xl font-bold text-slate-100">{baseListings.length}</p>
             </div>
           </div>
         </Card>
@@ -447,7 +496,7 @@ const Properties: React.FC = () => {
             </div>
             <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
               <p className="text-sm text-slate-400">{t('properties.locations')}</p>
-              <p className="text-2xl font-bold text-slate-100">12</p>
+              <p className="text-2xl font-bold text-slate-100">{new Set(baseListings.map((l: any) => `${l.city}|${l.country}`)).size}</p>
             </div>
           </div>
         </Card>
@@ -458,8 +507,8 @@ const Properties: React.FC = () => {
               <Calendar className="h-6 w-6 text-orange-400" />
             </div>
             <div className={clsx(isRTL ? 'mr-4' : 'ml-4')}>
-              <p className="text-sm text-slate-400">{t('properties.thisMonth')}</p>
-              <p className="text-2xl font-bold text-slate-100">8</p>
+              <p className="text-sm text-slate-400">{t('properties.published') || 'Published'}</p>
+              <p className="text-2xl font-bold text-slate-100">{baseListings.filter((l: any) => l.status === 'PUBLISHED').length}</p>
             </div>
           </div>
         </Card>

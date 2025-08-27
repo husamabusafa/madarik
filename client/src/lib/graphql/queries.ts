@@ -74,3 +74,84 @@ export const GET_INVITATIONS = gql`
   }
 `;
 
+// Listings Queries
+export const GET_LISTINGS = gql`
+  query GetListings {
+    listings {
+      id
+      status
+      propertyType
+      listingType
+      price
+      currency
+      areaValue
+      areaUnit
+      bedrooms
+      bathrooms
+      parking
+      yearBuilt
+      addressLine
+      city
+      country
+      lat
+      lng
+      zoomHint
+      primaryPhotoUrl
+      publishedAt
+      createdAt
+      updatedAt
+      translations {
+        id
+        locale
+        title
+        description
+        displayAddressLine
+        areaName
+        slug
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const SEARCH_LISTINGS = gql`
+  query SearchListings($filters: SearchListingsFiltersInput, $query: String) {
+    searchListings(filters: $filters, query: $query) {
+      id
+      status
+      propertyType
+      listingType
+      price
+      currency
+      areaValue
+      areaUnit
+      bedrooms
+      bathrooms
+      parking
+      yearBuilt
+      addressLine
+      city
+      country
+      lat
+      lng
+      zoomHint
+      primaryPhotoUrl
+      publishedAt
+      createdAt
+      updatedAt
+      translations {
+        id
+        locale
+        title
+        description
+        displayAddressLine
+        areaName
+        slug
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+

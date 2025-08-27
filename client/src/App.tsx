@@ -20,6 +20,7 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Properties from './pages/Properties';
+import PropertyNew from './pages/PropertyNew';
 import Leads from './pages/Leads';
 import Settings from './pages/Settings';
 import Media from './pages/Media';
@@ -48,6 +49,7 @@ function App() {
               {/* Admin/Staff Routes with Modern Layout */}
               <Route path="/" element={<ModernLayout />}>
                 <Route path="dashboard" element={<Dashboard />} />
+                <Route path="properties/new" element={<PropertyNew />} />
                 <Route path="properties" element={<Properties />} />
                 <Route path="leads" element={<Leads />} />
                 <Route path="media" element={<Media />} />

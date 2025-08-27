@@ -135,3 +135,44 @@ export const SEND_TEST_EMAIL = gql`
     }
   }
 `;
+
+// Listings Mutations
+export const CREATE_LISTING = gql`
+  mutation CreateListing($input: CreateListingInput!) {
+    createListing(input: $input) {
+      id
+      status
+      propertyType
+      listingType
+      price
+      currency
+      areaValue
+      areaUnit
+      bedrooms
+      bathrooms
+      parking
+      yearBuilt
+      addressLine
+      city
+      country
+      lat
+      lng
+      zoomHint
+      primaryPhotoUrl
+      publishedAt
+      createdAt
+      updatedAt
+      translations {
+        id
+        locale
+        title
+        description
+        displayAddressLine
+        areaName
+        slug
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;

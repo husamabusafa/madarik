@@ -1,8 +1,27 @@
 @import "tailwindcss";
 
+/* Modern glassmorphism and animation utilities */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
 /* Light theme for admin panel */
 :root {
   color-scheme: light;
+  --shimmer-duration: 2s;
+  --glow-duration: 2s;
+  --float-duration: 3s;
 }
 
 html {
@@ -15,18 +34,72 @@ body {
   @apply bg-gray-50 text-gray-900;
 }
 
-/* Dark theme overrides */
+/* Dark theme overrides with enhanced gradients */
 html.dark {
   color-scheme: dark;
 }
 
 html.dark body {
   @apply bg-slate-950 text-slate-100;
+  background: radial-gradient(ellipse at top, rgba(15, 23, 42, 0.9) 0%, rgba(2, 6, 23, 1) 100%);
+  min-height: 100vh;
 }
 
-/* RTL-specific styles */
+/* Enhanced glassmorphism utilities */
+.glass {
+  @apply backdrop-blur-md bg-white/10 border border-white/20;
+}
+
+.glass-strong {
+  @apply backdrop-blur-lg bg-white/15 border border-white/30;
+}
+
+.glass-subtle {
+  @apply backdrop-blur-sm bg-white/5 border border-white/10;
+}
+
+/* Modern button animations */
+.btn-modern {
+  @apply relative overflow-hidden transform-gpu will-change-transform;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.btn-modern:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Input focus effects */
+.input-modern {
+  @apply relative transition-all duration-300 ease-out;
+}
+
+.input-modern:focus-within {
+  transform: scale(1.01);
+}
+
+/* Floating animation utility */
+.animate-float {
+  animation: float var(--float-duration) ease-in-out infinite;
+}
+
+/* Shimmer effect utility */
+.animate-shimmer {
+  animation: shimmer var(--shimmer-duration) ease-in-out infinite;
+}
+
+/* Pulse glow utility */
+.animate-pulse-glow {
+  animation: pulse-glow var(--glow-duration) ease-in-out infinite;
+}
+
+/* RTL-specific styles with enhanced typography */
 [dir="rtl"] {
-  font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-family: 'Segoe UI', 'Cairo', 'Noto Sans Arabic', Tahoma, Arial, sans-serif;
+  font-feature-settings: 'liga' 1, 'kern' 1;
 }
 
 /* RTL-aware utilities */
@@ -107,4 +180,48 @@ html.dark body {
 [dir="rtl"] .number {
   direction: ltr;
   text-align: left;
+}
+
+/* Enhanced focus states for better accessibility */
+*:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+
+*:focus-visible {
+  outline: 2px solid rgb(59 130 246 / 0.5);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-white/20 rounded-full;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/30;
+}
+
+/* Selection styling */
+::selection {
+  @apply bg-blue-500/30 text-white;
+}
+
+::-moz-selection {
+  @apply bg-blue-500/30 text-white;
 }
