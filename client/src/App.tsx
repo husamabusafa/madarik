@@ -21,12 +21,12 @@ import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import Properties from './pages/Properties';
 import Leads from './pages/Leads';
-import Users from './pages/Users';
 import Settings from './pages/Settings';
 import Media from './pages/Media';
 import Amenities from './pages/Amenities';
 import Analytics from './pages/Analytics';
 import Content from './pages/Content';
+import Users from './pages/Users';
 
 function App() {
   return (

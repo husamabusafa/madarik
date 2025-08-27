@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { LoginInput, AuthPayload } from '../users/dto/user.dto';
 import { ForgotPasswordInput, ResetPasswordInput, VerifyEmailInput } from './dto/auth.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AdminGuard } from './guards/admin.guard';
 import { CurrentUser } from '../common/decorators/auth.decorator';
 import { User } from '../users/dto/user.dto';
 
@@ -35,5 +36,11 @@ export class AuthResolver {
   @UseGuards(JwtAuthGuard)
   async resendVerification(@CurrentUser() user: User): Promise<boolean> {
     return this.authService.resendVerification(user.id);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard, AdminGuard)
+  async forgotPasswordAdmin(@Args('userId') userId: string): Promise<boolean> {
+    return this.authService.forgotPasswordAdmin(userId);
   }
 }

@@ -6,7 +6,6 @@ import { useI18n } from '../../contexts/I18nContext';
 import { 
   LayoutDashboard, 
   Home, 
-  Users, 
   MessageSquare, 
   Settings, 
   LogOut, 
@@ -17,7 +16,8 @@ import {
   Images,
   Tags,
   BarChart3,
-  FileText
+  FileText,
+  Users
 } from 'lucide-react';
 import { clsx } from 'clsx';
 

@@ -5,16 +5,14 @@ import {
   Upload, 
   Globe, 
   Mail, 
-  MapPin, 
   Building, 
-  Link as LinkIcon,
-  Key,
   Bell,
-  Shield,
-  Database,
-  HelpCircle,
+  Users,
+  TrendingUp,
+  Eye,
   Camera,
-  Trash2
+  Trash2,
+  Plus
 } from 'lucide-react';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -34,32 +32,25 @@ const Settings: React.FC = () => {
     description: 'Premier real estate company in Dubai'
   });
 
-  const [emailSettings, setEmailSettings] = useState({
-    smtpHost: 'smtp.madarik.com',
-    smtpPort: '587',
-    smtpUsername: 'noreply@madarik.com',
-    smtpPassword: '',
-    fromName: 'Madarik Real Estate',
-    fromEmail: 'noreply@madarik.com',
-    notificationEmails: ['admin@madarik.com', 'leads@madarik.com']
+  const [notificationSettings, setNotificationSettings] = useState({
+    leadNotificationEmails: ['admin@madarik.com', 'leads@madarik.com'],
+    emailOnNewLead: true,
+    emailOnListingPublished: true,
+    emailOnUserInvited: true
   });
 
-  const [mapSettings, setMapSettings] = useState({
-    provider: 'google',
-    googleMapsApiKey: '',
-    mapboxApiKey: '',
-    defaultZoom: 12,
-    defaultLat: 25.2048,
-    defaultLng: 55.2708
+  const [localizationSettings, setLocalizationSettings] = useState({
+    defaultLanguage: 'en',
+    enabledLanguages: ['en', 'ar'],
+    dateFormat: 'DD/MM/YYYY',
+    currency: 'AED',
+    timezone: 'Asia/Dubai'
   });
 
   const tabs = [
     { id: 'company', name: 'Company Profile', icon: Building },
-    { id: 'email', name: 'Email Configuration', icon: Mail },
-    { id: 'maps', name: 'Maps & Location', icon: MapPin },
     { id: 'notifications', name: 'Notifications', icon: Bell },
-    { id: 'security', name: 'Security', icon: Shield },
-    { id: 'integrations', name: 'Integrations', icon: LinkIcon },
+    { id: 'localization', name: 'Language & Region', icon: Globe },
   ];
 
   const handleSave = (section: string) => {
@@ -159,68 +150,74 @@ const Settings: React.FC = () => {
     </div>
   );
 
-  const renderEmailSettings = () => (
+  const renderNotificationSettings = () => (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium text-gray-100 mb-4">SMTP Configuration</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input
-            label="SMTP Host"
-            value={emailSettings.smtpHost}
-            onChange={(e) => setEmailSettings({ ...emailSettings, smtpHost: e.target.value })}
-          />
-          <Input
-            label="SMTP Port"
-            type="number"
-            value={emailSettings.smtpPort}
-            onChange={(e) => setEmailSettings({ ...emailSettings, smtpPort: e.target.value })}
-          />
-          <Input
-            label="SMTP Username"
-            value={emailSettings.smtpUsername}
-            onChange={(e) => setEmailSettings({ ...emailSettings, smtpUsername: e.target.value })}
-          />
-          <Input
-            label="SMTP Password"
-            type="password"
-            value={emailSettings.smtpPassword}
-            onChange={(e) => setEmailSettings({ ...emailSettings, smtpPassword: e.target.value })}
-          />
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-lg font-medium text-gray-100 mb-4">Email Branding</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Input
-            label="From Name"
-            value={emailSettings.fromName}
-            onChange={(e) => setEmailSettings({ ...emailSettings, fromName: e.target.value })}
-          />
-          <Input
-            label="From Email"
-            type="email"
-            value={emailSettings.fromEmail}
-            onChange={(e) => setEmailSettings({ ...emailSettings, fromEmail: e.target.value })}
-          />
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Email Notifications</h3>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 border border-white/15 rounded-lg">
+            <div>
+              <h4 className="text-sm font-medium text-gray-200">New Lead Notifications</h4>
+              <p className="text-xs text-gray-400">Get notified when someone submits a lead form</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={notificationSettings.emailOnNewLead}
+              onChange={(e) => setNotificationSettings({ ...notificationSettings, emailOnNewLead: e.target.checked })}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20 rounded"
+            />
+          </div>
+          <div className="flex items-center justify-between p-4 border border-white/15 rounded-lg">
+            <div>
+              <h4 className="text-sm font-medium text-gray-200">Listing Published</h4>
+              <p className="text-xs text-gray-400">Get notified when a listing is published</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={notificationSettings.emailOnListingPublished}
+              onChange={(e) => setNotificationSettings({ ...notificationSettings, emailOnListingPublished: e.target.checked })}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20 rounded"
+            />
+          </div>
+          <div className="flex items-center justify-between p-4 border border-white/15 rounded-lg">
+            <div>
+              <h4 className="text-sm font-medium text-gray-200">User Invitations</h4>
+              <p className="text-xs text-gray-400">Get notified when new users are invited</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={notificationSettings.emailOnUserInvited}
+              onChange={(e) => setNotificationSettings({ ...notificationSettings, emailOnUserInvited: e.target.checked })}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20 rounded"
+            />
+          </div>
         </div>
       </div>
 
       <div>
         <h3 className="text-lg font-medium text-gray-100 mb-4">Notification Recipients</h3>
+        <p className="text-sm text-gray-400 mb-4">Email addresses that will receive notifications</p>
         <div className="space-y-3">
-          {emailSettings.notificationEmails.map((email, index) => (
+          {notificationSettings.leadNotificationEmails.map((email, index) => (
             <div key={index} className="flex items-center space-x-3">
               <Input
                 value={email}
                 onChange={(e) => {
-                  const newEmails = [...emailSettings.notificationEmails];
+                  const newEmails = [...notificationSettings.leadNotificationEmails];
                   newEmails[index] = e.target.value;
-                  setEmailSettings({ ...emailSettings, notificationEmails: newEmails });
+                  setNotificationSettings({ ...notificationSettings, leadNotificationEmails: newEmails });
                 }}
                 className="flex-1"
+                placeholder="Enter email address"
               />
-              <Button variant="ghost" size="sm">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => {
+                  const newEmails = notificationSettings.leadNotificationEmails.filter((_, i) => i !== index);
+                  setNotificationSettings({ ...notificationSettings, leadNotificationEmails: newEmails });
+                }}
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -229,19 +226,20 @@ const Settings: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={() => {
-              setEmailSettings({
-                ...emailSettings,
-                notificationEmails: [...emailSettings.notificationEmails, '']
+              setNotificationSettings({
+                ...notificationSettings,
+                leadNotificationEmails: [...notificationSettings.leadNotificationEmails, '']
               });
             }}
           >
+            <Plus className="h-4 w-4 mr-2" />
             Add Email
           </Button>
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => handleSave('email')}>
+        <Button onClick={() => handleSave('notifications')}>
           <Save className="h-4 w-4 mr-2" />
           Save Changes
         </Button>
@@ -249,96 +247,116 @@ const Settings: React.FC = () => {
     </div>
   );
 
-  const renderMapSettings = () => (
+  const renderLocalizationSettings = () => (
     <div className="space-y-8">
       <div>
-        <h3 className="text-lg font-medium text-gray-100 mb-4">Map Provider</h3>
-        <div className="space-y-4">
-          <div className="flex items-center space-x-3">
-            <input
-              type="radio"
-              id="google-maps"
-              name="mapProvider"
-              value="google"
-              checked={mapSettings.provider === 'google'}
-              onChange={(e) => setMapSettings({ ...mapSettings, provider: e.target.value })}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20"
-            />
-            <label htmlFor="google-maps" className="text-sm font-medium text-gray-200">
-              Google Maps
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Language Settings</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Default Language
             </label>
+            <select
+              value={localizationSettings.defaultLanguage}
+              onChange={(e) => setLocalizationSettings({ ...localizationSettings, defaultLanguage: e.target.value })}
+              className="w-full px-3 py-2 border border-white/15 bg-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100"
+            >
+              <option value="en" className="bg-gray-800">English</option>
+              <option value="ar" className="bg-gray-800">العربية (Arabic)</option>
+            </select>
           </div>
-          <div className="flex items-center space-x-3">
-            <input
-              type="radio"
-              id="mapbox"
-              name="mapProvider"
-              value="mapbox"
-              checked={mapSettings.provider === 'mapbox'}
-              onChange={(e) => setMapSettings({ ...mapSettings, provider: e.target.value })}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20"
-            />
-            <label htmlFor="mapbox" className="text-sm font-medium text-gray-200">
-              Mapbox
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Enabled Languages
             </label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="lang-en"
+                  checked={localizationSettings.enabledLanguages.includes('en')}
+                  onChange={(e) => {
+                    const langs = e.target.checked 
+                      ? [...localizationSettings.enabledLanguages, 'en']
+                      : localizationSettings.enabledLanguages.filter(l => l !== 'en');
+                    setLocalizationSettings({ ...localizationSettings, enabledLanguages: langs });
+                  }}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20 rounded"
+                />
+                <label htmlFor="lang-en" className="text-sm text-gray-200">English</label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="lang-ar"
+                  checked={localizationSettings.enabledLanguages.includes('ar')}
+                  onChange={(e) => {
+                    const langs = e.target.checked 
+                      ? [...localizationSettings.enabledLanguages, 'ar']
+                      : localizationSettings.enabledLanguages.filter(l => l !== 'ar');
+                    setLocalizationSettings({ ...localizationSettings, enabledLanguages: langs });
+                  }}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 bg-transparent border-white/20 rounded"
+                />
+                <label htmlFor="lang-ar" className="text-sm text-gray-200">العربية (Arabic)</label>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       <div>
-        <h3 className="text-lg font-medium text-gray-100 mb-4">API Configuration</h3>
-        <div className="space-y-6">
-          {mapSettings.provider === 'google' && (
-            <Input
-              label="Google Maps API Key"
-              type="password"
-              value={mapSettings.googleMapsApiKey}
-              onChange={(e) => setMapSettings({ ...mapSettings, googleMapsApiKey: e.target.value })}
-              helpText="Required for maps, geocoding, and location services"
-            />
-          )}
-          {mapSettings.provider === 'mapbox' && (
-            <Input
-              label="Mapbox API Key"
-              type="password"
-              value={mapSettings.mapboxApiKey}
-              onChange={(e) => setMapSettings({ ...mapSettings, mapboxApiKey: e.target.value })}
-              helpText="Required for maps and geocoding services"
-            />
-          )}
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-lg font-medium text-gray-100 mb-4">Default Map Settings</h3>
+        <h3 className="text-lg font-medium text-gray-100 mb-4">Regional Settings</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Input
-            label="Default Zoom Level"
-            type="number"
-            min="1"
-            max="20"
-            value={mapSettings.defaultZoom.toString()}
-            onChange={(e) => setMapSettings({ ...mapSettings, defaultZoom: parseInt(e.target.value) })}
-          />
-          <Input
-            label="Default Latitude"
-            type="number"
-            step="0.000001"
-            value={mapSettings.defaultLat.toString()}
-            onChange={(e) => setMapSettings({ ...mapSettings, defaultLat: parseFloat(e.target.value) })}
-          />
-          <Input
-            label="Default Longitude"
-            type="number"
-            step="0.000001"
-            value={mapSettings.defaultLng.toString()}
-            onChange={(e) => setMapSettings({ ...mapSettings, defaultLng: parseFloat(e.target.value) })}
-          />
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Date Format
+            </label>
+            <select
+              value={localizationSettings.dateFormat}
+              onChange={(e) => setLocalizationSettings({ ...localizationSettings, dateFormat: e.target.value })}
+              className="w-full px-3 py-2 border border-white/15 bg-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100"
+            >
+              <option value="DD/MM/YYYY" className="bg-gray-800">DD/MM/YYYY</option>
+              <option value="MM/DD/YYYY" className="bg-gray-800">MM/DD/YYYY</option>
+              <option value="YYYY-MM-DD" className="bg-gray-800">YYYY-MM-DD</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Currency
+            </label>
+            <select
+              value={localizationSettings.currency}
+              onChange={(e) => setLocalizationSettings({ ...localizationSettings, currency: e.target.value })}
+              className="w-full px-3 py-2 border border-white/15 bg-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100"
+            >
+              <option value="AED" className="bg-gray-800">AED (د.إ)</option>
+              <option value="USD" className="bg-gray-800">USD ($)</option>
+              <option value="EUR" className="bg-gray-800">EUR (€)</option>
+              <option value="SAR" className="bg-gray-800">SAR (ر.س)</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-200 mb-2">
+              Timezone
+            </label>
+            <select
+              value={localizationSettings.timezone}
+              onChange={(e) => setLocalizationSettings({ ...localizationSettings, timezone: e.target.value })}
+              className="w-full px-3 py-2 border border-white/15 bg-transparent rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-100"
+            >
+              <option value="Asia/Dubai" className="bg-gray-800">Dubai (UTC+4)</option>
+              <option value="Asia/Riyadh" className="bg-gray-800">Riyadh (UTC+3)</option>
+              <option value="Europe/London" className="bg-gray-800">London (UTC+0)</option>
+              <option value="America/New_York" className="bg-gray-800">New York (UTC-5)</option>
+            </select>
+          </div>
         </div>
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={() => handleSave('maps')}>
+        <Button onClick={() => handleSave('localization')}>
           <Save className="h-4 w-4 mr-2" />
           Save Changes
         </Button>
@@ -350,31 +368,10 @@ const Settings: React.FC = () => {
     switch (activeTab) {
       case 'company':
         return renderCompanySettings();
-      case 'email':
-        return renderEmailSettings();
-      case 'maps':
-        return renderMapSettings();
       case 'notifications':
-        return (
-          <div className="text-center py-12">
-            <Bell className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-400">Notification settings coming soon</p>
-          </div>
-        );
-      case 'security':
-        return (
-          <div className="text-center py-12">
-            <Shield className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-400">Security settings coming soon</p>
-          </div>
-        );
-      case 'integrations':
-        return (
-          <div className="text-center py-12">
-            <LinkIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-400">Integration settings coming soon</p>
-          </div>
-        );
+        return renderNotificationSettings();
+      case 'localization':
+        return renderLocalizationSettings();
       default:
         return null;
     }
@@ -427,18 +424,22 @@ const Settings: React.FC = () => {
             </nav>
           </Card>
 
-          {/* Help Card */}
+          {/* Quick Actions Card */}
           <Card className="p-4 mt-6">
             <div className="flex items-center mb-3">
-              <HelpCircle className="h-5 w-5 text-blue-600 mr-2" />
-              <h3 className="text-sm font-medium text-gray-100">Need Help?</h3>
+              <Building className="h-5 w-5 text-blue-600 mr-2" />
+              <h3 className="text-sm font-medium text-gray-100">Quick Actions</h3>
             </div>
-            <p className="text-xs text-gray-300 mb-3">
-              Check our documentation for detailed configuration guides.
-            </p>
-            <Button variant="outline" size="sm" className="w-full">
-              View Docs
-            </Button>
+            <div className="space-y-2">
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Upload className="h-4 w-4 mr-2" />
+                Update Logo
+              </Button>
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Mail className="h-4 w-4 mr-2" />
+                Test Notifications
+              </Button>
+            </div>
           </Card>
         </div>
 
@@ -457,7 +458,7 @@ const Settings: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Quick Stats */}
+      {/* Business Metrics */}
       <motion.div
         className="grid grid-cols-1 md:grid-cols-3 gap-6"
         initial={{ opacity: 0, y: 20 }}
@@ -467,12 +468,12 @@ const Settings: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center">
             <div className="p-3 bg-green-600/20 rounded-lg">
-              <Database className="h-6 w-6 text-green-400" />
+              <TrendingUp className="h-6 w-6 text-green-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Last Backup</p>
-              <p className="text-lg font-bold text-gray-100">2 hours ago</p>
-              <p className="text-sm text-green-400 mt-1">All systems operational</p>
+              <p className="text-sm font-medium text-gray-400">Active Listings</p>
+              <p className="text-lg font-bold text-gray-100">247</p>
+              <p className="text-sm text-green-400 mt-1">+12 this month</p>
             </div>
           </div>
         </Card>
@@ -480,12 +481,12 @@ const Settings: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center">
             <div className="p-3 bg-blue-600/20 rounded-lg">
-              <Globe className="h-6 w-6 text-blue-400" />
+              <Users className="h-6 w-6 text-blue-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">API Status</p>
-              <p className="text-lg font-bold text-gray-100">99.9%</p>
-              <p className="text-sm text-blue-400 mt-1">All integrations active</p>
+              <p className="text-sm font-medium text-gray-400">Total Leads</p>
+              <p className="text-lg font-bold text-gray-100">1,234</p>
+              <p className="text-sm text-blue-400 mt-1">+89 this week</p>
             </div>
           </div>
         </Card>
@@ -493,12 +494,12 @@ const Settings: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center">
             <div className="p-3 bg-purple-600/20 rounded-lg">
-              <Key className="h-6 w-6 text-purple-400" />
+              <Eye className="h-6 w-6 text-purple-400" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-400">Security Score</p>
-              <p className="text-lg font-bold text-gray-100">A+</p>
-              <p className="text-sm text-purple-400 mt-1">Excellent security</p>
+              <p className="text-sm font-medium text-gray-400">Page Views</p>
+              <p className="text-lg font-bold text-gray-100">45.2K</p>
+              <p className="text-sm text-purple-400 mt-1">+2.1K today</p>
             </div>
           </div>
         </Card>

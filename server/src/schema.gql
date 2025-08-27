@@ -248,6 +248,7 @@ type Mutation {
   deleteSiteSettings: Boolean!
   deleteUser(id: ID!): Boolean!
   forgotPassword(input: ForgotPasswordInput!): Boolean!
+  forgotPasswordAdmin(userId: String!): Boolean!
   incrementListingViews(id: ID!): Boolean!
   login(input: LoginInput!): AuthPayload!
   reorderMedia(input: ReorderMediaInput!, listingId: ID!): [MediaAsset!]!
@@ -265,6 +266,8 @@ type Mutation {
   updateMediaAsset(id: ID!, input: UpdateMediaAssetInput!): MediaAsset!
   updateSiteSettings(input: UpdateSiteSettingInput!): SiteSetting!
   updateUser(id: ID!, input: UpdateUserInput!): User!
+  updateUserRole(id: ID!, input: UpdateUserRoleInput!): User!
+  updateUserStatus(id: ID!, input: UpdateUserStatusInput!): User!
   verifyEmail(input: VerifyEmailInput!): Boolean!
   verifyUserEmail(id: ID!): User!
 }
@@ -415,6 +418,14 @@ input UpdateUserInput {
   isActive: Boolean
   preferredLocale: Locale
   role: UserRole
+}
+
+input UpdateUserRoleInput {
+  role: UserRole!
+}
+
+input UpdateUserStatusInput {
+  isActive: Boolean!
 }
 
 type User {

@@ -89,6 +89,20 @@ export class UpdateUserInput {
 }
 
 @InputType()
+export class UpdateUserRoleInput {
+  @Field(() => UserRole)
+  @IsEnum(UserRole)
+  role: UserRole;
+}
+
+@InputType()
+export class UpdateUserStatusInput {
+  @Field()
+  @IsBoolean()
+  isActive: boolean;
+}
+
+@InputType()
 export class LoginInput {
   @Field()
   @IsEmail()

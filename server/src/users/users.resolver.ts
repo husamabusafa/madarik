@@ -1,7 +1,7 @@
 import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User, UserStats, CreateUserInput, UpdateUserInput } from './dto/user.dto';
+import { User, UserStats, CreateUserInput, UpdateUserInput, UpdateUserRoleInput, UpdateUserStatusInput } from './dto/user.dto';
 import { CurrentUser } from '../common/decorators/auth.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -52,5 +52,21 @@ export class UsersResolver {
   @Mutation(() => User)
   async verifyUserEmail(@Args('id', { type: () => ID }) id: string): Promise<User> {
     return this.usersService.verifyEmail(id);
+  }
+
+  @Mutation(() => User)
+  async updateUserRole(
+    @Args('id', { type: () => ID }) id: string,
+    @Args('input') input: UpdateUserRoleInput,
+  ): Promise<User> {
+    return this.usersService.updateRole(id, input.role);
+  }
+
+  @Mutation(() => User)
+  async updateUserStatus(
+    @Args('id', { type: () => ID }) id: string,
+    @Args('input') input: UpdateUserStatusInput,
+  ): Promise<User> {
+    return this.usersService.updateStatus(id, input.isActive);
   }
 }
